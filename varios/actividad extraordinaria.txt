@@ -1,0 +1,29 @@
+
+7.4 The maximum basic daily FDP
+7.4.1 The maximum basic daily FDP is 13 hours.
+
+7.4.2 These 13 hours shall be further reduced by 30 minutes for each sector from the 3rd sector onwards. Maximum FDP reduction for the number of sectors is 2 hours.
+
+7.4.3 When the FDP starts in the Window of Circadian Low (WOCL), the maximum FDP limit stated in paragraphs 7.4.1 and 7.4.2 shall be further reduced by 100% of its encroachment on the WOCL. This reduction shall be a maximum of 2 hours. 
+When the FDP ends in or fully encompasses the WOCL, the maximum FDP limit stated in paragraphs 7.4.1 and 7.4.2 shall be further reduced by 50% of its encroachment.
+
+
+
+
+
+2.30 Window of Circadian Low – WOCL
+The time period between 02:00 hours and 05:59 hours. Within a band of 3 time zones the WOCL refers to local time of a crew member’s home base. Beyond these 3 time zones the WOCL refers to the local time of the aerodrome of departure within the first 48 hours, and thereafter, to the local time of the destination aerodrome.
+
+
+
+
+
+
+7.7 Augmented Crew (FLT-AC)
+If an augmented crew is used, the maximum permissible planned FDP is 16 hours irrespective of the FDP reporting time, with a maximum of 4 landings and provided the following conditions are met:
+
+a) A comfortable reclining seat in the area of cabin arranged for higher than an economy class (for a multiple class cabin configuration) is available for each resting crew member
+b) A common group of seats (row subsection) may be shared only by another crew member; under no circumstances may the common group of seats be shared by any crew member and a passenger
+c) Seats intended for crew member(s) rest shall be separated from the flight deck and screened from the passengers, preferably by a cabin divider.
+
+ 

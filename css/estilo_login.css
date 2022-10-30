@@ -1,0 +1,63 @@
+
+form{
+
+    border-style: solid;
+    border-width: 2px;
+    border-radius: 5px;
+    margin: 5px 5px 5px 5px;
+    display: block;
+    width: 40%;
+    background-color: lightyellow;
+    padding: 10px 10px 10px 10px;
+
+
+}
+
+
+form label{
+
+    margin-top: 25px;
+    margin-left: 25px;
+}
+
+#login, #pass{
+
+    margin-left:  25px;
+    border-radius: 5px;
+    /* margin: 5px 5px 5px 5px; */
+    display: block;
+    width: 65%;
+    background-color: lightyellow;
+
+}
+
+#btnEnviar, #btnReset{
+    cursor: pointer;
+    align-self: center;
+    background-color: lightgrey;
+    color: rgb(56, 122, 244);
+    padding: 5px 5px 5px 5px;
+    width: 30%;
+    margin-left: 25px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border-style: fixed;
+    border-width: 1px;
+    border-color: cornflowerblue;
+}
+
+p{
+    text-align: right;
+    font-style: italic;
+    position: absolute;
+    bottom: 0;
+    left: 70%;
+}
+
+
+
+
+
+
+

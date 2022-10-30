@@ -1,0 +1,187 @@
+/* * {
+    border-style: solid;
+    border-width: 1px;
+
+} */
+body{
+    color: rgb(86, 86, 3);
+}
+select, input{
+    border-radius: 5px;
+    margin: 5px 5px 5px 5px;
+    display: block;
+    width: 20%;
+    background-color: lightyellow;
+}
+
+textarea{
+    border-radius: 5px;
+    margin: 5px 5px 5px 5px;
+    display: block;
+    background-color: lightyellow;
+    resize: none;
+}
+
+.boton{
+
+
+    cursor: pointer;
+    background-color: lightgrey;
+    color: rgb(56, 122, 244);
+    padding: 5px 5px 5px 5px;
+    width: 20%;
+    margin-left: 25px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 5px;
+    border-style: solid;
+    border-width: 1px;
+    border-color: cornflowerblue;
+}
+
+#divResultados{
+    display: none;
+    /* background-color: rgb(255, 255, 255); */
+}
+
+#divSecciones{
+    /* font-weight: bold; */
+    text-align: right;
+    border: none;
+}
+
+div{
+    border-radius: 5px;
+    border: solid 1px;
+    margin: 10px 10px;
+    padding-left: 10px;
+}
+
+.error{
+
+    border-left: solid 20px red;
+    border-radius: 8px;
+    border-color: red;
+
+
+}
+
+.contenedorServicios{
+
+    border-radius: 8px;
+    border: dashed 2px lightslategray;
+    border-left: solid 10px lightslategray;
+
+
+}
+
+.servicioVuelo{
+    border-radius: 5px;
+    border: solid 2px darkblue;
+    border-left: solid 10px darkblue;
+
+}
+
+.servicioVuelo h3{
+
+    border-radius: 5px;
+    /* background-color: rgb(218, 218, 250); */
+
+}
+.servicioVuelo p{
+
+    margin: auto;
+    padding-top: auto;
+
+}
+
+.servicioTierra{
+    border-radius: 5px;
+    border: solid 2px darkgoldenrod;
+    border-left: solid 10px darkgoldenrod;
+
+}
+
+.servicioLibre{
+    border-radius: 5px;
+    border: solid 2px darkgreen;
+    border-left: solid 10px darkgreen;
+
+}
+
+.servicioError{
+    border-left: solid 10px red;
+
+}
+
+.p_titulo{
+    margin-top: 2px;
+    margin-left: 2px;
+    font-size: large;
+    font-weight: bold;
+}
+
+.p_block{
+    margin-top: 2px;
+    margin-left: 2px;
+    font-weight: bold;
+}
+
+p{
+    margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+
+}
+.contenedorServicios h4{
+    margin: 2px 2px 0px 0px;
+    padding: 4px 2px 0px 0px;
+
+
+}
+
+.contenedorServicios ul{
+
+    margin-bottom: 0px;
+}
+
+.servicioVuelo ul{
+
+    margin-bottom: 0px;
+}
+
+.contenedorServicios .uk-label{
+
+    margin-bottom: 5px;
+
+
+}
+
+#tablas_antiguas{
+    width: auto;
+    margin: 15px 0px 15px 15px;
+    margin-left: 0px;
+    cursor: pointer;
+    display: inline;
+    align-items: left;
+    background-color: red;
+
+
+}
+
+#lbl_tablas{
+    display: inline;
+    align-items: left;
+    border-radius: 5px;
+    margin: 5px 5px 5px 5px;
+    width: auto;
+
+    cursor: pointer;
+
+    background-color: lightyellow;
+
+}
+
+
+
+
+

@@ -643,9 +643,9 @@ function escribeContenedorServicio(linea){
     '</ul>' ;
 
 
-    unDiv.innerHTML=unDiv.innerHTML+'<h4>' + "Actividad: <p>" +
-    convertirFechaHora(linea.fechaFirma.date.substr(0,16)) + '</p><p>' +
-    convertirFechaHora(linea.fechaDesfirma.date.substr(0,16)) +
+    unDiv.innerHTML=unDiv.innerHTML+'<h4>' +
+    'Ini Act: ' + convertirFechaHora(linea.fechaFirma.date.substr(0,16)) + '</p><p>' +
+    'Fin Act: ' + convertirFechaHora(linea.fechaDesfirma.date.substr(0,16)) +
     '</p><p> Horas Actividad: ' + convertirCadenaHsMs(linea.tiempoActividad.h, linea.tiempoActividad.i) +
     ', Accu: ' + convertirCadenaHsMs(linea.contadorHact, linea.contadorMact) +
     '</p><p> Horas Act Noc: ' + convertirCadenaHsMs(linea.tiempoActividadNocturna.h, linea.tiempoActividadNocturna.i) +
@@ -656,7 +656,7 @@ function escribeContenedorServicio(linea){
     ' (' + parseFloat(linea.importeActividadEx).toFixed(2) + '€)' +
     ', Accu Ex: ' + convertirCadenaHsMs(linea.contadorHactEx, linea.contadorMactEx) +
     ' (' + parseFloat(linea.contadorImpEx).toFixed(2) + '€)' +
-    '</p></h4>';
+    '</h4>';
 
     horasActividad=convertirCadenaHsMs(linea.contadorHact, linea.contadorMact);
     horasActividadNocturna=convertirCadenaHsMs(linea.contadorHactNoc, linea.contadorMactNoc);

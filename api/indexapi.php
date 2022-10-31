@@ -38,7 +38,7 @@ if($datosacceso['tipoObjeto']=="dietas"){
 
 		$codigoDieta=array_shift($paths);
 
-		restGetDieta($codigoDieta);
+		restGetDieta($codigoDieta, null);
 
 	}else{ //solo se permite el metodo GET para dietas
 
@@ -119,13 +119,13 @@ header('HTTP/1.1 404 Not Found');
  * funciones que acceden a las clases y a la case de datos
  */
 
-function restGetDieta($codigoDieta){
+function restGetDieta($codigoDieta, $piloto){
 
 	global $datosacceso;
 
 	$res['datosacceso']=$datosacceso;
 	//cream un objecte usuari a partir del seu id
-	$unaDieta=new Dieta($codigoDieta);
+	$unaDieta=new Dieta($codigoDieta, null);
 
 	if($unaDieta){
 		//la dieta existe

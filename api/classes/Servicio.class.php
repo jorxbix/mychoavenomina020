@@ -39,6 +39,11 @@ class Servicio{
 	 * la variable $arrVuelos
 	 */
 	public $arrVuelos;
+	/**
+	 * Un servicio puede contener una serie de dietas que se almacenan en
+	 * la variable $arrDietas
+	 */
+	public $arrDietas;
 
 
 	public $importeActividadEx=0;
@@ -109,6 +114,17 @@ class Servicio{
 		}
 
 		$this->tiempoServicio=$this->fechaFin->diff($this->fechaIni);
+
+	}
+
+	/**
+	 * Funcion que asigna las dietas que corresponden a este servicio
+	 * Esta funcion es llamada tanto en servicios de tierra como en servicios de vuelo
+	 * y se llama una vez el servicio está todo completo y las actividades están
+	 * calculadas correvtament.
+	 */
+	public function asignaDietas(){
+
 
 	}
 
@@ -920,25 +936,7 @@ class Servicio{
 
 
 
-
-
-
-		// echo json_encode($tiempoTranscurrido);
-
-		// echo "diferencia horaria= $diferenciaHoraria";
-		// echo json_encode($previousDepAp);
-		// echo json_encode($depAp);
-
-		// exit;
-
-
 	}
-
-
-
-
-
-
 
 
 

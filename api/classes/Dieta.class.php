@@ -2,19 +2,14 @@
 
 class Dieta extends Conexion{
 
-	public $id;
 	public $codigo;
-	public $nombre;
-	public $brutoP1;
-	public $exentoP1;
-	public $brutoP2;
-	public $exentoP2;
+	public $piloto;
 	public $arrDatosDieta;
 
 /**Funcion constructora, devuelve false si el codigo de dieta no existe
  * @param $codigo son las siglas enmayuscula de la dieta a crear
  */
-	public function __construct($codigo){
+	public function __construct($codigo, $piloto){
 
 		//inicia la funcion constructora de conexion
 		parent::__construct();
@@ -25,21 +20,13 @@ class Dieta extends Conexion{
 
 		if(isset($this->arrDatosDieta['id']) && $this->arrDatosDieta['id']!=null && $this->arrDatosDieta['id']!=""){
 
-			$this->id=$this->arrDatosDieta['id'];
-			$this->codigo=$this->arrDatosDieta['codigo'];
-			$this->nombre=$this->arrDatosDieta['nombre'];
-			$this->brutoP1=$this->arrDatosDieta['brutop1'];
-			$this->exentoP1=$this->arrDatosDieta['exentop1'];
-			$this->brutoP2=$this->arrDatosDieta['brutop2'];
-			$this->exentoP2=$this->arrDatosDieta['exentop2'];
+			return $this;
 
 		}else{
 
 			return false;
 
 		}
-
-		return true;
 
 	}
 
@@ -75,11 +62,9 @@ class Dieta extends Conexion{
 
 	public function imprimeJsonDieta(){
 
-		global $arrDatosDieta;
-
         header('Content-type: application/json');
 
- 		echo json_encode($arrDatosDieta);
+ 		echo json_encode($this->arrDatosDieta);
 
 	}
 

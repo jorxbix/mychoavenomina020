@@ -1,0 +1,15 @@
+codigo,nombre,brutop1,exentop1,brutop2,exentop2
+DNC,"Nacional Contacto",71.63,36.06,66.61,36.06
+DNP,"Nacional Pernocta",61.15,53.34,61.15,53.34
+DNT,"Nacional Tributable",100.25,0,81.53,0
+DIC,"Internacional Contacto",129.91,66.11,120.98,66.11
+DIP,"Internacional Pernocta",111.27,91.35,111.27,91.35
+DIT,"Internacional Tributable",182.4,0,148.36,0
+DIMC,"Internacional Mixta Contacto",153.77,36.06,133.42,36.06
+DIMP,"Internacional Mixta Pernocta",140.89,53.34,126.7,53.34
+DLC,"Larga Contacto",179.21,66.11,161.08,66.11
+DLP,"Larga Pernocta",159.16,91.35,150.62,91.35
+DLT,"Larga Tributable",231.69,0,188.45,0
+DLMC,"Larga Mixta Conctato",203.07,36.06,173.52,36.06
+DLMP,"Larga Mixta Pernocta",190.18,53.34,166.8,53.34
+Desayuno,Desayuno,18.53,0,15.07,0

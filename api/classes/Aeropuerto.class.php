@@ -10,7 +10,7 @@ class Aeropuerto extends Conexion{
 
 	public $oaci;
 
-	//public $tipo; //INT,NAC,LONG
+	public $tipo; //INTERNACIONAL,NACIONAL,LARGA
 
 	public $husos;
 	public $tz;
@@ -39,6 +39,8 @@ class Aeropuerto extends Conexion{
 
 			$this->husos=$this->arrDatosAeropuerto['z_offset'];
 			$this->tz=$this->arrDatosAeropuerto['tz_olson'];
+
+			$this->tipo = $this->calculaTipoAeropuerto();
 
 			return $this;
 
@@ -79,6 +81,76 @@ class Aeropuerto extends Conexion{
 		$aeropuerto = $resultado->fetch(PDO::FETCH_ASSOC);
 
 		return $aeropuerto;
+
+	}
+
+	private function calculaTipoAeropuerto(){
+
+		if($this->pais=="Spain") return "NACIONAL";
+
+		$arrTz=explode("/", $this->tz);
+
+		//Estos son loas paises que devolveran dieta internacional, solo los que pertenecen a aeuropa
+		//me falta comprobar el tema de colonias como azores u otras islas lejanas que devengan
+		//dieta de larga aunque sean de un pais europeo ...
+		// Belgium
+		// Germany
+		// Estonia
+		// Finland
+		// United Kingdom
+		// Guernsey
+		// Jersey
+		// Isle of Man
+		// Netherlands
+		// Ireland
+		// Denmark
+		// Luxembourg
+		// Norway
+		// Poland
+		// Sweden
+		// Spain
+		// Albania
+		// Bulgaria
+		// Cyprus
+		// Croatia
+		// France
+		// Greece
+		// Hungary
+		// Italy
+		// Slovenia
+
+		if($arrTz[0]=="Europe"){
+
+			 return "INTERNACIONAL";
+
+		}else{
+
+			return "LARGA";
+		}
+
+	}
+
+
+	public static function dameDistancia($arrVuelos){
+
+		$distancia="NACIONAL";
+
+		foreach($arrVuelos as $vuelo){
+
+			$unApto= new Aeropuerto($vuelo->aptIni);
+
+			if($unApto->tipo=="LARGA") $distancia="LARGA";
+			if($unApto->tipo=="INTERNACIONAL" && $distancia!="LARGA") $distancia="INTERNACIONAL";
+
+			$unApto= new Aeropuerto($vuelo->aptFin);
+
+			if($unApto->tipo=="LARGA") $distancia="LARGA";
+			if($unApto->tipo=="INTERNACIONAL" && $distancia!="LARGA") $distancia="INTERNACIONAL";
+
+
+		}
+
+		return $distancia;
 
 	}
 

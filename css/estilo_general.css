@@ -82,6 +82,13 @@ div{
 
 }
 
+.dieta{
+    border-radius: 5px;
+    border: solid 2px purple;
+    border-left: solid 10px purple;
+
+}
+
 .servicioVuelo h3{
 
     border-radius: 5px;

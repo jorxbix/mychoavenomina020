@@ -156,7 +156,7 @@ class Vuelo {
 		$this->contadorHperfil=Vuelo::$totalHorasPerfil;
 		$this->contadorMperfil=Vuelo::$totalMinutosPerfil;
 
-		$this->observaciones="No Bonus (h1=" . $limiteH1 . ", h2=" . $limiteH2 . ")" ;
+		$this->observaciones="No Bonus (h1=" . round($limiteH1,2) . ", h2=" . round($limiteH2,2) . ")" ;
 
 		if($this->contadorHperfil>=$limiteH2){
 

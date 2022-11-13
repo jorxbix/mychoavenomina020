@@ -362,6 +362,7 @@ function restProcesaProg($datos){
 	}
 
 	echo json_encode($contenedor);
+
 	exit;
 
 

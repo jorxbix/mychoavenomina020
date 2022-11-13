@@ -17,6 +17,7 @@ session_start();
 //_PHP_Incomplete_Class_Name con la clasee HoraMemorizada almacenada en session
 
 $sonVuelos=["CO","CR","PM","PR","PS","VS"];
+
 //09h para considerar dos actividades diferrentes
 $tiempoEntreServicios=new DateInterval("PT09H");
 //valores por defecto de limites h1 y h2

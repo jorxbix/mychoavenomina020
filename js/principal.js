@@ -120,6 +120,8 @@ function volverPreparacion(eve){
     document.getElementById("divPreparacion").style.display="block";
     document.getElementById("divResultados").style.display="none";
 
+    console.clear();
+
 }
 
 function enviarForm(eve){
@@ -472,6 +474,40 @@ function escribeError(objError){
 
 }
 
+function escribeDieta(linea){
+
+    let i=0;
+
+    for (let dieta of linea.arrDietas){
+
+        let unDiv=document.createElement("div");
+        unDiv.classList.add("dieta");
+
+        unDiv.innerHTML=
+        '<ul uk-accordion>' +
+                '<li>' +
+                '<a class="uk-accordion-title" href="#">' +
+                '<h3>' + linea.arrDietas[i].codigo + " " +
+                    linea.arrDietas[i].arrDatosDieta['nombre'] + linea.arrDietas[i].arrDatosDieta['brutop1'] + '</h3>' +
+                '</a>' +
+            '<div class="uk-accordion-content">' +
+                '<p>'  + JSON.stringify(linea.arrDietas[i]) +
+                '</p>' +
+            '</div>' +
+                '</li>' +
+            '</ul>';
+
+        //augmento el contador para la siguinete dieta
+        i++;
+
+
+    }
+
+
+    document.getElementById("divResultados").appendChild(unContenedor);
+
+}
+
 function escribeVuelo(linea){
 
     let unContenedor=escribeContenedorServicio(linea);
@@ -664,6 +700,39 @@ function escribeContenedorServicio(linea){
 
     horasActividadEx=convertirCadenaHsMs(linea.contadorHactEx, linea.contadorMactEx);
     importeEx=parseFloat(linea.contadorImpEx).toFixed(2);
+
+    //***************ESCRIBIR LAS DIETAS******************* */
+    let i=0;
+
+    for (let dieta of linea.arrDietas){
+
+        let unDivDieta=document.createElement("div");
+
+        unDivDieta.classList.add("dieta");
+
+        unDivDieta.innerHTML=
+        '<ul uk-accordion>' +
+                '<li>' +
+                '<a class="uk-accordion-title" href="#">' +
+                '<h3>' + linea.arrDietas[i].codigo + " " +
+                    linea.arrDietas[i].arrDatosDieta.nombre + " (" + linea.arrDietas[i].arrDatosDieta.bruto + ')</h3>' +
+                '</a>' +
+            '<div class="uk-accordion-content">' +
+                '<p>'  + linea.arrDietas[i].misc +
+                '</p>' +
+            '</div>' +
+                '</li>' +
+            '</ul>';
+
+        //augmento el contador para la siguinete dieta
+        unDiv.appendChild(unDivDieta);
+        i++;
+
+
+    }
+
+
+
 
     return unDiv;
 

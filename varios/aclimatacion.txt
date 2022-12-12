@@ -1,0 +1,16 @@
+(VERTICALES):Time difference (h) between reference time and local
+time where the crew member starts the next duty
+(HORIZONTALES):Time elapsed since reporting at reference time
+
+		< 48 	48-71:59 	72-95:59 	96-119:59 	≥ 120
+<4 		B 		D 		D 		D 			D
+≤6 		B 		X 		D 		D 			D
+≤9 		B 		X 		X 		D 			D
+≤12 		B 		X 		X 		X 			D
+
+"B" significa aclimatado a la hora local de la zona horaria de partida.
+“B” means acclimatised to the local time of the departure time zone.
+“D” significa aclimatado a la hora local en que el tripulante comienza su actividad siguiente.
+“D” means acclimatised to the local time where the crew member starts his/her next duty.
+“X” significa que un tripulante se encuentra en un estado de aclimatación desconocido.
+“X” means that a crew member is in an unknown state of acclimatisation.

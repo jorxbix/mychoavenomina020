@@ -2,64 +2,30 @@
 
 class Fdp extends Conexion{
 
-	public $iata;
-
-	public $nombre;
-
-	public $pais;
-
-	public $oaci;
-
-	public $tipo; //INTERNACIONAL,NACIONAL,LARGA
-
-	public $husos;
-	public $tz;
-
-	public $arrDatosAeropuerto;
+	//periodo max sin restricciones en formato "h:m:s"
+	public $fdp;
+	//periodo max sin extensiones en minutos
+	public $maxFdp;
+	public $consulta;
 
 /**Funcion constructora, devuelve false si el codigo de perfil no existe
  * @param $nombre son las siglas del perfil enmayuscula
  */
-	public function __construct($iata){
+	public function __construct($tipo,$numSectores,$hora_firma){
 
 		//inicia la funcion constructora de conexion
 		parent::__construct();
 
-		$iata=strtoupper($iata);
+		if($tipo=="X") $this->dameFDPdesconocido($numSectores);
 
-		$this->arrDatosAeropuerto=$this->devuelveDatosAeropuerto($iata);
-
-		if(isset($this->arrDatosAeropuerto['iata']) && $this->arrDatosAeropuerto['iata']!=null && $this->arrDatosAeropuerto['iata']!=""){
-
-			$this->iata=$this->arrDatosAeropuerto['iata'];
-			$this->nombre=$this->arrDatosAeropuerto['nombre'];
-
-			$this->pais=$this->arrDatosAeropuerto['pais'];
-			$this->oaci=$this->arrDatosAeropuerto['oaci'];
-
-			$this->husos=$this->arrDatosAeropuerto['z_offset'];
-			$this->tz=$this->arrDatosAeropuerto['tz_olson'];
-
-			$this->tipo = $this->calculaTipoAeropuerto();
-
-			return $this;
-
-		}else{
-
-			return false;
-
-		}
+		if($tipo=="B" || $tipo=="D") $this->dameFDPaclimatdado($numSectores,$hora_firma);
 
 	}
 
-	/**
-	 * funcion que devuelve un array con todos los datos del perfil
-	 * si no la encuentra en la bbdd devuelve false
-	 */
-	public function devuelveDatosAeropuerto($iata){
+	private function dameFDPdesconocido($numSectores){
 
 		$consulta="
-		SELECT * FROM aeropuertos WHERE iata='$iata';
+		SELECT sect_$numSectores FROM fdp_desconocido;
 		";
 
 		try{
@@ -68,97 +34,77 @@ class Fdp extends Conexion{
 
 		}catch(Exception $e){
 
-			return false;
+			$this->fdp= "UNAPOLLA-X";
 		}
 
-		if($resultado->rowCount()<=0){
+		if($resultado->rowCount()!=1){
 
-			return false;
+			$this->fdp= "UNA POLLA-XX";
 
 		}
 
 		//PDO::FETCH_ASSOC solo devuelve un array con campos asociativos y no con indices numericos
-		$aeropuerto = $resultado->fetch(PDO::FETCH_ASSOC);
+		$fdp = $resultado->fetch(PDO::FETCH_ASSOC);
 
-		return $aeropuerto;
+		$this->fdp= $fdp;
+		$this->consulta=$consulta;
 
 	}
 
-	private function calculaTipoAeropuerto(){
+	private function dameFDPaclimatdado($numSectores,$hora_firma){
 
-		if($this->pais=="Spain") return "NACIONAL";
+		//SELECT sect_1 FROM `fdp_aclimatado` WHERE '05:45:00' >= hora_ini AND '05:45:00' <= hora_fin;
+		$arrTiempo= explode(":",$hora_firma);
+		$h=$arrTiempo[0];
 
-		$arrTz=explode("/", $this->tz);
+		$consulta="";
 
-		//Estos son loas paises que devolveran dieta internacional, solo los que pertenecen a aeuropa
-		//me falta comprobar el tema de colonias como azores u otras islas lejanas que devengan
-		//dieta de larga aunque sean de un pais europeo ...
-		// Belgium
-		// Germany
-		// Estonia
-		// Finland
-		// United Kingdom
-		// Guernsey
-		// Jersey
-		// Isle of Man
-		// Netherlands
-		// Ireland
-		// Denmark
-		// Luxembourg
-		// Norway
-		// Poland
-		// Sweden
-		// Spain
-		// Albania
-		// Bulgaria
-		// Cyprus
-		// Croatia
-		// France
-		// Greece
-		// Hungary
-		// Italy
-		// Slovenia
+		if($h>=17 || $h<5){
 
-		if($arrTz[0]=="Europe"){
-
-			 return "INTERNACIONAL";
+			$consulta="
+			SELECT sect_$numSectores FROM fdp_aclimatado WHERE intervalo='17:00-04:59';
+			";
 
 		}else{
 
-			return "LARGA";
-		}
-
-	}
-
-
-	public static function dameDistancia($arrVuelos){
-
-		$distancia="NACIONAL";
-
-		foreach($arrVuelos as $vuelo){
-
-			$unApto= new Aeropuerto($vuelo->aptIni);
-
-			if($unApto->tipo=="LARGA") $distancia="LARGA";
-			if($unApto->tipo=="INTERNACIONAL" && $distancia!="LARGA") $distancia="INTERNACIONAL";
-
-			$unApto= new Aeropuerto($vuelo->aptFin);
-
-			if($unApto->tipo=="LARGA") $distancia="LARGA";
-			if($unApto->tipo=="INTERNACIONAL" && $distancia!="LARGA") $distancia="INTERNACIONAL";
-
+			$consulta="
+			SELECT sect_$numSectores FROM fdp_aclimatado WHERE '$hora_firma' >= hora_ini AND '$hora_firma' <= hora_fin;
+			";
 
 		}
 
-		return $distancia;
 
-	}
 
-	public function imprimeJsonAeropuerto(){
+		try{
 
-        header('Content-type: application/json');
+			$resultado=$this->conexion->query($consulta);
 
- 		echo json_encode($this->arrDatosAeropuerto);
+		}catch(Exception $e){
+
+			$this->fdp= "POLLAS";
+		}
+
+		if($resultado->rowCount()!=1){
+
+			$this->fdp= "POLLAS2";
+
+		}
+
+		//PDO::FETCH_ASSOC solo devuelve un array con campos asociativos y no con indices numericos
+		$fdp = $resultado->fetch(PDO::FETCH_NUM);
+
+		$cadena=$fdp[0];
+
+		$this->fdp= $cadena;
+
+		$arr=explode(":", $cadena);
+
+		$hh=$arr[0];
+		$mm=$arr[1];
+
+		$this->maxFdp=$hh*60 + $mm;
+
+		$this->consulta=$consulta;
 
 	}
 

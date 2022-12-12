@@ -1,5 +1,5 @@
 <?php
-
+require_once "Fdp.class.php";
 class Servicio{
 
 	public static $aptoIniServicio;
@@ -367,9 +367,9 @@ class Servicio{
 
 			//guardo rn variables static del lugar y fecha donde ha
 			//salido el tripulante ACRTUALIZO VARIABLES STATIC para calculo de timezone
-			//**********si es un servicio de tierra no actualizo las variables static *********/
-			// Servicio::$fechaIniServicio=$this->fechaIni;
-			// Servicio::$aptoIniServicio=$this->aptIni;
+			//**********si es un servicio de SIIIIII actualizo las variables static *********/
+			Servicio::$fechaIniServicio=$this->fechaIni;
+			Servicio::$aptoIniServicio=$this->aptIni;
 			//********************************************************************************/
 
 			//si el servicio no es de vuelo no calculamos actividad
@@ -1016,7 +1016,10 @@ class Servicio{
 		//si se pasan de 160h la act ordinaria
 		$actExtraordinariaYaCalculada=false;
 
-		$maxFDP=$this->dameMaxFdp();
+		/////////////////////////EVITA Q DE FALLO EN EL PRIMER SERVICIO CON VARIABLES STSTAIC EN NULL
+		if(Servicio::$fechaIniServicio==null) Servicio::$fechaIniServicio=$this->fechaIni;
+
+		$maxFDP=$this->dameMaxFdp2();
 
 		global $limiteActExtra;
 
@@ -1189,10 +1192,217 @@ class Servicio{
 
 		}
 
+	}
 
+	/**
+	 * funcion que devuelve el timezone para el calculo de la hora
+	 * local en el calculo de act extraordinaria asi como la definicion del periodo wocl
+	 * es llamadaa desde dame max FDP
+	 */
+	public function dameDiferenciaHoraria(){
+
+		$aptoSalida=Servicio::$aptoIniServicio;
+		$fechaSalida=Servicio::$fechaIniServicio;
+
+		//caso de que sea el primer vuelo para el calculo
+		if($aptoSalida==null) $aptoSalida=$this->piloto->aclimatadoInicial;
+		if($fechaSalida==null) $fechaSalida=$this->fechaFirma;
+
+		//ahora miro en cuantos husos estoy
+		$previousDepAp=new Aeropuerto($aptoSalida);
+
+		if($previousDepAp->arrDatosAeropuerto==false){
+
+			$previousDepAp=new Aeropuerto("MAD");
+
+			$this->misc=$this->misc . "<br>Aeropuerto $aptoSalida no encontrado. Act Extra no fiable.";
+
+		}
+
+		$z_previousDepAp=$previousDepAp->husos;
+
+		$depAp=new Aeropuerto($this->aptIni);
+
+		if($depAp->arrDatosAeropuerto==false){
+
+			$depAp=new Aeropuerto("MAD");
+
+			$this->misc=$this->misc . "<br>Aeropuerto $depAp no encontrado. Act Extra no fiable.";
+
+		}
+
+		$z_depAp=$depAp->husos;
+
+		//diferencia entre la ultima salida y esta salida
+		$diferenciaHoraria=abs($z_previousDepAp-$z_depAp);
+
+		//debug
+		$this->misc=$this->misc . "<br>DiferenciaHoraria=$diferenciaHoraria ; $previousDepAp->iata ($z_previousDepAp) - $depAp->iata ($z_depAp)";
+
+		return $diferenciaHoraria;
 
 	}
 
+	private function dameEstadoAclimatacion(){
+// (VERTICALES):Time difference (h) between reference time and local
+// time where the crew member starts the next duty
+// (HORIZONTALES):Time elapsed since reporting at reference time
+
+// 		< 48 	48-71:59 	72-95:59 	96-119:59 	≥ 120
+// <4 		B 		D 		D 		D 			D
+// ≤6 		B 		X 		D 		D 			D
+// ≤9 		B 		X 		X 		D 			D
+// ≤12 		B 		X 		X 		X 			D
+
+// "B" significa aclimatado a la hora local de la zona horaria de partida.
+// “B” means acclimatised to the local time of the departure time zone.
+// “D” significa aclimatado a la hora local en que el tripulante comienza su actividad siguiente.
+// “D” means acclimatised to the local time where the crew member starts his/her next duty.
+// “X” significa que un tripulante se encuentra en un estado de aclimatación desconocido.
+// “X” means that a crew member is in an unknown state of acclimatisation.
+
+		$fechaSalida=Servicio::$fechaIniServicio;
+
+		//si hay mas de 3 husos de diferencia miro si han pasado mas de 48h
+		$tiempoTranscurrido=$this->fechaFirma->diff($fechaSalida);
+
+		//debug
+		$this->misc=$this->misc . "<br>TiempoTranscurrido: $tiempoTranscurrido->d d $tiempoTranscurrido->h h $tiempoTranscurrido->i m ";
+
+		$diferenciaHoraria=$this->dameDiferenciaHoraria();
+
+		//NOS ENCONTRAMOS DENTRO DE LOS 2 HUSOS, ACLIMATADOS AL LUGAR DE REFERENCIA
+		if($diferenciaHoraria<=2)return "B";
+
+		//primera columna
+		if($tiempoTranscurrido->d < 2) return "B";
+
+		//segunda columna
+		if($tiempoTranscurrido->d >= 2 and $tiempoTranscurrido->d < 3){
+			if($diferenciaHoraria<4){
+				return "D";
+			}else{
+				return "X";
+			}
+		}
+
+		//tercera columna
+		if($tiempoTranscurrido->d >= 3 and $tiempoTranscurrido->d < 4){
+			if($diferenciaHoraria<=6){
+				return "D";
+			}else{
+				return "X";
+			}
+		}
+
+		//cuarta columna
+		if($tiempoTranscurrido->d >= 4 and $tiempoTranscurrido->d < 5){
+			if($diferenciaHoraria>=12){
+				return "X";
+			}else{
+				return "D";
+			}
+		}
+
+		//quinta y ultima columna
+		if($tiempoTranscurrido->d >= 5){
+			return "D";
+		}
+
+	}
+
+	/**
+	 * FUNCION QUE DEVUELVA EL MAX FDP (SIN EXTENSIONES) CONFORME AL MO PARTE CAP 7
+	 * DEVUELVE EL MAX FDP SIN EXTENSIONES DE NINGUN TIPO. Lo devuelve en minutos
+	 */
+	private function dameMaxFdp2(){
+
+		//las horas de firma y desfirma estan en utc
+		//shortcuts:
+
+		$dtFirma=clone $this->fechaFirma;
+
+		$estado_aclim=$this->dameEstadoAclimatacion();
+
+		$time_zone=$this->dameTz($estado_aclim);
+
+		$numero_sectores=count($this->arrVuelos);
+
+		if($estado_aclim=="X"){
+
+			$fdp=new Fdp("X", $numero_sectores, "00:01:00");
+
+			$FDP= $fdp->fdp;
+
+			$this->misc=$this->misc . "<br>$estado_aclim<br>$time_zone<br>$numero_sectores<br>$FDP";
+
+			return $fdp->maxFdp;
+
+		}else{
+
+			//paso la hora de firma a la que corresponda en local
+			$dtFirma->setTimezone(new DateTimeZone($time_zone));
+
+			$horaFirma=$dtFirma->format("H:i:s");
+
+			$fdp=new Fdp($estado_aclim, $numero_sectores, $horaFirma);
+
+			$FDP= $fdp->fdp;
+
+			$CONSULTA=$fdp->consulta;
+
+			$this->misc=$this->misc . "<br>EstadoAclim $estado_aclim<br>TimeZone $time_zone<br>Sectores $numero_sectores<br>HoraFirma $horaFirma<br>MaxFPD: $FDP<br>SQL: $CONSULTA";
+
+			return $fdp->maxFdp;
+
+		}
+
+	}
+
+	/**
+	 * funcion que devuelve el timezone para el calculo de la hora
+	 * local en el calculo de act extraordinaria asi como la definicion del periodo wocl
+	 * es llamadaa desde dame max FDP
+	 */
+	private function dameTz($estadoAclimatacion){
+
+		$aptoSalida=Servicio::$aptoIniServicio;
+
+		//caso de que sea el primer vuelo para el calculo
+		if($aptoSalida==null) $aptoSalida=$this->piloto->aclimatadoInicial;
+
+		//ahora miro en cuantos husos estoy
+		$previousDepAp=new Aeropuerto($aptoSalida);
+
+		if($previousDepAp->arrDatosAeropuerto==false){
+
+			$previousDepAp=new Aeropuerto("MAD");
+			$this->misc=$this->misc . "<br>Aeropuerto $aptoSalida no encontrado. Act Extra no fiable.";
+
+		}
+
+		$depAp=new Aeropuerto($this->aptIni);
+
+		if($depAp->arrDatosAeropuerto==false){
+
+			$depAp=new Aeropuerto("MAD");
+			$this->misc=$this->misc . "<br>Aeropuerto $depAp no encontrado. Act Extra no fiable.";
+
+		}
+
+		if($estadoAclimatacion=="B"){
+
+			return $previousDepAp->tz;
+
+		}
+
+		if($estadoAclimatacion=="D"){
+
+			return $depAp->tz;
+
+		}
+
+	}
 
 
 }

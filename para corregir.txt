@@ -1,0 +1,11 @@
+- No se calculan actividades nocturnas ni extra en servicios de tierra.
+
+- No se consideran series de servicios en tierra comprendidos por diferentes asignaturas o sims etc.
+
+- No se calcula correctamente el max fdp en la siguiente rotacion:
+
+CO	28/10/2022 21:44	MAD	29/10/2022 08:55	VVI	AEA025	CR	789
+SA	29/10/2022 (LT)	VVI	30/10/2022 (LT)	VVI			
+CO	31/10/2022 16:59	VVI	01/11/2022 03:37	MAD	AEA026	CR	788
+
+en el segundo servicio vvi-mad no se computa correctamente.

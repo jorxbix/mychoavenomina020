@@ -367,8 +367,10 @@ class Servicio{
 
 			//guardo rn variables static del lugar y fecha donde ha
 			//salido el tripulante ACRTUALIZO VARIABLES STATIC para calculo de timezone
-			Servicio::$fechaIniServicio=$this->fechaIni;
-			Servicio::$aptoIniServicio=$this->aptIni;
+			//**********si es un servicio de tierra no actualizo las variables static *********/
+			// Servicio::$fechaIniServicio=$this->fechaIni;
+			// Servicio::$aptoIniServicio=$this->aptIni;
+			//********************************************************************************/
 
 			//si el servicio no es de vuelo no calculamos actividad
 			//si el servicio es el medico sumamos cero a la actividad
@@ -430,7 +432,7 @@ class Servicio{
 		$this->calculaActividadExtra();
 
 		//guardo rn variables static del lugar y fecha donde ha
-		//salido el tripulante ACRTUALIZO VARIABLES STATIC
+		//salido el tripulante ACRTUALIZO VARIABLES STATIC para el calculo de timezone
 		Servicio::$fechaIniServicio=$this->fechaFirma;
 		Servicio::$aptoIniServicio=$this->aptIni;
 
@@ -962,10 +964,6 @@ class Servicio{
 	}
 
 
-
-	// echo json_encode($dtFirma);
-	// echo json_encode($dtDesFirma);
-
 	$cadenaMaxFdp=intval($maxFDP/60) . " horas " . ($maxFDP % 60) . " minutos";
 	$this->misc=$this->misc . "<br>MaxFDP " . $cadenaMaxFdp;
 	$this->misc=$this->misc . "<br>TimeZone utilizada: " . $time_zone;
@@ -1103,7 +1101,7 @@ class Servicio{
 
 	/**
 	 * funcion que devuelve el timezone para el calculo de la hora
-	 * local en el calculo de act extraordinaria
+	 * local en el calculo de act extraordinaria asi como la definicion del periodo wocl
 	 * es llamadaa desde dame max FDP
 	 */
 	public function calculaTz(){
@@ -1111,9 +1109,9 @@ class Servicio{
 		$aptoSalida=Servicio::$aptoIniServicio;
 		$fechaSalida=Servicio::$fechaIniServicio;
 
-		//caso de que sea el primer vuelo par el calculo
-		if($aptoSalida==null)$aptoSalida=$this->piloto->aclimatadoInicial;
-		if($fechaSalida==null)$fechaSalida=$this->fechaFirma;
+		//caso de que sea el primer vuelo para el calculo
+		if($aptoSalida==null) $aptoSalida=$this->piloto->aclimatadoInicial;
+		if($fechaSalida==null) $fechaSalida=$this->fechaFirma;
 
 		//ahora miro en cuantos husos estoy
 		$previousDepAp=new Aeropuerto($aptoSalida);
@@ -1121,6 +1119,7 @@ class Servicio{
 		if($previousDepAp->arrDatosAeropuerto==false){
 
 			$previousDepAp=new Aeropuerto("MAD");
+
 			$this->misc=$this->misc . "<br>Aeropuerto $aptoSalida no encontrado. Act Extra no fiable.";
 
 		}
@@ -1132,16 +1131,30 @@ class Servicio{
 		if($depAp->arrDatosAeropuerto==false){
 
 			$depAp=new Aeropuerto("MAD");
+
 			$this->misc=$this->misc . "<br>Aeropuerto $depAp no encontrado. Act Extra no fiable.";
 
 		}
+
 		$z_depAp=$depAp->husos;
 
 		//diferencia entre la ultima salida y esta salida
 		$diferenciaHoraria=abs($z_previousDepAp-$z_depAp);
 
-		$this->misc=$this->misc . "<br>DiferenciaHoraria $diferenciaHoraria";
-		//si hay 3 o menos husos, se considera la misma hora local
+		//debug
+		$this->misc=$this->misc . "<br>DiferenciaHoraria=$diferenciaHoraria ; $previousDepAp->iata ($z_previousDepAp) - $depAp->iata ($z_depAp)";
+
+		/**
+		 *
+		 *
+		 * 2.30 Window of Circadian Low – WOCL
+		 * The time period between 02:00 hours and 05:59 hours.
+		 * Within a band of 3 time zones the WOCL refers to local time of a crew member’s home base.
+		 * Beyond these 3 time zones the WOCL refers to the local time of the aerodrome of departure
+		 * within the first 48 hours, and thereafter, to the local time of the destination aerodrome.
+		 */
+
+		//si hay 3 o menos husos, se considera la misma hora local de la base del piloto
 		if($diferenciaHoraria<=3){
 
 			return $previousDepAp->tz;
@@ -1151,16 +1164,26 @@ class Servicio{
 			//si hay mas de 3 husos de diferencia miro si han pasado mas de 48h
 			$tiempoTranscurrido=$this->fechaFirma->diff($fechaSalida);
 
-			//$this->misc=$this->misc . "<br>" . json_encode($tiempoTranscurrido);
-			//miro si han pasado mas de 48h (tomamos tz del apto de salida)
-			//o menos, tomamos el tz del apto previo.
-			if($tiempoTranscurrido->d>2){
+			//debug
+			$this->misc=$this->misc . "<br>TiempoTranscurrido: $tiempoTranscurrido->d d $tiempoTranscurrido->h h $tiempoTranscurrido->i m ";
 
-				return $depAp->tz;
+			//miro si han pasado mas de 48h (tomamos tz del apto de llegada)
+			//o menos, tomamos el tz del apto de salida.
+			if($tiempoTranscurrido->d >= 2){
+
+				$arrAp=new Aeropuerto($this->aptFin);
+
+				if($arrAp->arrDatosAeropuerto==false){
+					$arrAp=new Aeropuerto("MAD");
+					$this->misc=$this->misc . "<br>Aeropuerto $arrAp no encontrado. Act Extra no fiable.";
+				}
+
+				return $arrAp->tz;
+
 
 			}else{
 
-				return $previousDepAp->tz;
+				return $depAp->tz;
 
 			}
 

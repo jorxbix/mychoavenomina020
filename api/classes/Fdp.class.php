@@ -44,9 +44,19 @@ class Fdp extends Conexion{
 		}
 
 		//PDO::FETCH_ASSOC solo devuelve un array con campos asociativos y no con indices numericos
-		$fdp = $resultado->fetch(PDO::FETCH_ASSOC);
+		$fdp = $resultado->fetch(PDO::FETCH_NUM);
 
-		$this->fdp= $fdp;
+		$cadena=$fdp[0];
+
+		$this->fdp= $cadena;
+
+		$arr=explode(":", $cadena);
+
+		$hh=$arr[0];
+		$mm=$arr[1];
+
+		$this->maxFdp=$hh*60 + $mm;
+
 		$this->consulta=$consulta;
 
 	}

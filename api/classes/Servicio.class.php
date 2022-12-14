@@ -40,6 +40,11 @@ class Servicio{
 	 */
 	public $arrVuelos;
 	/**
+	 * Un servicio puede contener una serie de vuelos que se almacenan en
+	 * la variable $arrVuelos
+	 */
+	public $arrSuelos;
+	/**
 	 * Un servicio puede contener una serie de dietas que se almacenan en
 	 * la variable $arrDietas
 	 */
@@ -174,6 +179,8 @@ class Servicio{
 
 		}
 
+		if(!isset($this->fechaFirma)) $this->fechaFirma=new DateTime();
+		if(!isset($this->fechaDesfirma)) $this->fechaDesfirma=new DateTime();
 		$firmaLocal=clone $this->fechaFirma;
 		$desFirmaLocal=clone $this->fechaDesfirma;
 
@@ -367,9 +374,9 @@ class Servicio{
 
 			//guardo rn variables static del lugar y fecha donde ha
 			//salido el tripulante ACRTUALIZO VARIABLES STATIC para calculo de timezone
-			//**********si es un servicio de SIIIIII actualizo las variables static *********/
-			Servicio::$fechaIniServicio=$this->fechaIni;
-			Servicio::$aptoIniServicio=$this->aptIni;
+			//**********si es un servicio de TIERRA NO actualizo las variables static *********/
+			// Servicio::$fechaIniServicio=$this->fechaIni;
+			// Servicio::$aptoIniServicio=$this->aptIni;
 			//********************************************************************************/
 
 			//si el servicio no es de vuelo no calculamos actividad
@@ -1168,7 +1175,7 @@ class Servicio{
 			$tiempoTranscurrido=$this->fechaFirma->diff($fechaSalida);
 
 			//debug
-			$this->misc=$this->misc . "<br>TiempoTranscurrido: $tiempoTranscurrido->d d $tiempoTranscurrido->h h $tiempoTranscurrido->i m ";
+			$this->misc=$this->misc . "<br>TiempoTranscurrido: $tiempoTranscurrido->d d $tiempoTranscurrido->h h $tiempoTranscurrido->i m";
 
 			//miro si han pasado mas de 48h (tomamos tz del apto de llegada)
 			//o menos, tomamos el tz del apto de salida.
@@ -1267,6 +1274,7 @@ class Servicio{
 		$tiempoTranscurrido=$this->fechaFirma->diff($fechaSalida);
 
 		//debug
+
 		$this->misc=$this->misc . "<br>TiempoTranscurrido: $tiempoTranscurrido->d d $tiempoTranscurrido->h h $tiempoTranscurrido->i m ";
 
 		$diferenciaHoraria=$this->dameDiferenciaHoraria();
@@ -1334,7 +1342,7 @@ class Servicio{
 
 			$FDP= $fdp->fdp;
 
-			$this->misc=$this->misc . "<br>$estado_aclim<br>$time_zone<br>$numero_sectores<br>$FDP";
+			$this->misc=$this->misc . "<br>EstadoAclim $estado_aclim (Desconocido) Sectores: $numero_sectores, HoraFirma No Relevante<br>MaxFPD: $FDP";
 
 			return $fdp->maxFdp;
 
@@ -1344,14 +1352,13 @@ class Servicio{
 			$dtFirma->setTimezone(new DateTimeZone($time_zone));
 
 			$horaFirma=$dtFirma->format("H:i:s");
+			$horaFirmaString=$dtFirma->format("H:i");
 
 			$fdp=new Fdp($estado_aclim, $numero_sectores, $horaFirma);
 
 			$FDP= $fdp->fdp;
 
-			$CONSULTA=$fdp->consulta;
-
-			$this->misc=$this->misc . "<br>EstadoAclim $estado_aclim<br>TimeZone $time_zone<br>Sectores $numero_sectores<br>HoraFirma $horaFirma<br>MaxFPD: $FDP<br>SQL: $CONSULTA";
+			$this->misc=$this->misc . "<br>EstadoAclim $estado_aclim ($time_zone) Sectores: $numero_sectores, HoraFirma $horaFirmaString LT<br>MaxFPD: $FDP";
 
 			return $fdp->maxFdp;
 

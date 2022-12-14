@@ -40,7 +40,7 @@ window.onload=function(){
 
     document.getElementById("btnMemoProg").addEventListener("click",memorizarHoras);
 
-    UIkit.modal(document.getElementById("advertencia")).show();
+    //UIkit.modal(document.getElementById("advertencia")).show();
 
 
 }
@@ -474,39 +474,6 @@ function escribeError(objError){
 
 }
 
-function escribeDieta(linea){
-
-    let i=0;
-
-    for (let dieta of linea.arrDietas){
-
-        let unDiv=document.createElement("div");
-        unDiv.classList.add("dieta");
-
-        unDiv.innerHTML=
-        '<ul uk-accordion>' +
-                '<li>' +
-                '<a class="uk-accordion-title" href="#">' +
-                '<h3>' + linea.arrDietas[i].codigo + " " +
-                    linea.arrDietas[i].arrDatosDieta['nombre'] + linea.arrDietas[i].arrDatosDieta['brutop1'] + '</h3>' +
-                '</a>' +
-            '<div class="uk-accordion-content">' +
-                '<p>'  + JSON.stringify(linea.arrDietas[i]) +
-                '</p>' +
-            '</div>' +
-                '</li>' +
-            '</ul>';
-
-        //augmento el contador para la siguinete dieta
-        i++;
-
-
-    }
-
-
-    document.getElementById("divResultados").appendChild(unContenedor);
-
-}
 
 function escribeVuelo(linea){
 
@@ -686,11 +653,11 @@ function escribeContenedorServicio(linea){
     ', Accu: ' + convertirCadenaHsMs(linea.contadorHact, linea.contadorMact) +
     '</p><p> Horas Act Noc: ' + convertirCadenaHsMs(linea.tiempoActividadNocturna.h, linea.tiempoActividadNocturna.i) +
     ' (' + parseFloat(linea.importeActividadNoc).toFixed(2) + '€)' +
-    ', Accu Nocturno: ' + convertirCadenaHsMs(linea.contadorHactNoc, linea.contadorMactNoc) +
+    ', Accu Noc: ' + convertirCadenaHsMs(linea.contadorHactNoc, linea.contadorMactNoc) +
     ' (' + parseFloat(linea.contadorImpNoc).toFixed(2) + '€)' +
-    '</p><p> Horas Act Ex: ' + convertirCadenaHsMs(linea.tiempoActividadEx.h, linea.tiempoActividadEx.i) +
+    '</p><p> Horas Act Ext: ' + convertirCadenaHsMs(linea.tiempoActividadEx.h, linea.tiempoActividadEx.i) +
     ' (' + parseFloat(linea.importeActividadEx).toFixed(2) + '€)' +
-    ', Accu Ex: ' + convertirCadenaHsMs(linea.contadorHactEx, linea.contadorMactEx) +
+    ', Accu Ext: ' + convertirCadenaHsMs(linea.contadorHactEx, linea.contadorMactEx) +
     ' (' + parseFloat(linea.contadorImpEx).toFixed(2) + '€)' +
     '</h4>';
 
@@ -730,9 +697,6 @@ function escribeContenedorServicio(linea){
 
 
     }
-
-
-
 
     return unDiv;
 

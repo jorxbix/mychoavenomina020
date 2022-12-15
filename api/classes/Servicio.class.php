@@ -65,7 +65,7 @@ class Servicio{
 	public $tiempoActividadNocturna;
 	public $tiempoActividadEx;
 
-	private $piloto;
+	public $piloto;
 
 	//contadores de actividad que almacenaran el valor de las variables
 	//estaticas para asi poderlas presentar vuelo a vuelo ... serv a serv
@@ -134,7 +134,7 @@ class Servicio{
 
 		if(isset($this->arrVuelos)){
 
-			$this->asignaDietasVuelo();
+			$this->asignaDietasVuelo2();
 
 		}else{
 
@@ -169,6 +169,7 @@ class Servicio{
 		//1. obtener el timezone de la base del fulano
 		$laBase=new Aeropuerto($base);
 
+		//si han metido un aeropuerto que no existe, le asignamos MAD
 		if($laBase){
 
 			$time_zone=$laBase->tz;
@@ -187,8 +188,10 @@ class Servicio{
 		//paso la hora de firma a la que corresponda en local
 		$firmaLocal->setTimezone(new DateTimeZone($time_zone));
 		$desFirmaLocal->setTimezone(new DateTimeZone($time_zone));
+
 		$INFO=$INFO . "firma: " . json_encode($firmaLocal);
 		$INFO=$INFO . "DesFirma: " . json_encode($desFirmaLocal);
+
 
 		//determinar si es pernocta o no ...
 
@@ -203,8 +206,6 @@ class Servicio{
 
 			$aptoHotel= new Aeropuerto($this->aptFin);
 
-			$tipoPernocta= $aptoHotel->tipo;
-
 		}else if($this->aptIni!=$base && $this->aptFin==$base){
 			/**
 			 * y/o se produzca una salida del hotel a cualquier hora
@@ -215,8 +216,6 @@ class Servicio{
 			if($horaDesFirma>=5) $PERNOCTA=true;
 
 			$aptoHotel= new Aeropuerto($this->aptIni);
-
-			$tipoPernocta= $aptoHotel->tipo;
 
 		}
 
@@ -232,7 +231,9 @@ class Servicio{
 		$blockOffLocal->setTimezone(new DateTimeZone($time_zone));
 		$diaBlockOff =(int) $blockOffLocal->format("d");
 		$INFO=$INFO . "BlockOff: " . json_encode($blockOffLocal);
+
 		if($diaBlockOff>$diaFirma){
+
 			$TRIBUTABLE=true;
 
 			$INFO=$INFO . " Sin BlockOff en el dia";
@@ -247,6 +248,7 @@ class Servicio{
 		 */
 		//calcular actividad en el día:
 		$mediaNoche=clone $firmaLocal;
+
 		date_time_set($mediaNoche,23,59);
 
 		$actEnElDia=$firmaLocal->diff($mediaNoche);
@@ -254,20 +256,6 @@ class Servicio{
 		$minsEnElDia=$actEnElDia->h*60+$actEnElDia->i +1;
 
 		if($minsEnElDia<120) $DIETA_LARGA_REDUCIDA=true;
-
-
-		// echo "HORAFIRMA=" . json_encode($firmaLocal);
-		// echo " MEDIANOCHE=" . json_encode($mediaNoche);
-		// echo " ACT EN EL DIA=" . json_encode($actEnElDia);
-		// echo " MINS ACT EN EL DIA=" . json_encode($minsEnElDia);
-		// echo " dieta larga reducidad=" . $DIETA_LARGA_REDUCIDA;
-
-		// exit;
-
-
-
-
-
 
 
 
@@ -311,47 +299,167 @@ class Servicio{
 
 
 		$this->arrDietas[0]=new Dieta($dieta,$this->piloto);
+
 		if($DIETA_LARGA_REDUCIDA){
 
-
 			$this->arrDietas[0]->arrDatosDieta['bruto']=round($this->arrDietas[0]->arrDatosDieta['bruto']*0.75,2);
+
 			$this->arrDietas[0]->arrDatosDieta['exento']=round($this->arrDietas[0]->arrDatosDieta['exento']*0.75,2);
 
 			$this->arrDietas[0]->codigo=$this->arrDietas[0]->codigo . "_redu 3/4";
+
 		}
 
 		$this->arrDietas[0]->misc=$INFO;
 
 
 
+		//**************DIETA DE LLEGADA SOLO SI SE LLEGA UN DIA DIFERENTE*************** */
+		if($diaFirma!=$diaDesfirma){
 
+			$dieta="D";
+			if($DISTANCIA=="NACIONAL") $dieta=$dieta . "N";
+			if($DISTANCIA=="INTERNACIONAL") $dieta=$dieta . "I";
+			if($DISTANCIA=="LARGA") $dieta=$dieta . "L";
+
+			$TRIBUTABLE=false;
+
+			if($diaBlockOff<$diaDesfirma){
+
+				$TRIBUTABLE=true;
+
+				$INFO=$INFO . " Sin BlockOff en el dia";
+
+			}
+
+			if($TRIBUTABLE){
+
+				$dieta=$dieta . "T";
+
+			}else{
+
+				if($PERNOCTA){
+
+					$dieta=$dieta . "P";
+
+				}else{
+
+					$dieta=$dieta . "C";
+
+				}
+
+			}
+
+			$this->arrDietas[1]=new Dieta($dieta,$this->piloto);
+
+			$this->arrDietas[1]->misc="$dieta DIETA DE LLEGADA";
+
+			}
+
+
+	}
+
+	protected function asignaDietasVuelo2(){
+
+		$INFO="";
+
+		$BASE=$this->piloto->base;
+
+		$PERNOCTA=false;
+
+		$DIETA_LARGA_REDUCIDA=false;
+
+		//veamos cuantas dietas corresponden a este servicio:
+
+		$arrDIAS_DIETA=Dieta::dameDiasDieta($this);
+
+		$INFO=$INFO . json_encode($arrDIAS_DIETA) . " // ";
+
+		//**************DIETA DE SALIDA DIETA 1*************** */
+
+		if (!isset($arrDIAS_DIETA[0])){
+
+			return;
+
+		}
+
+		$dieta="D";
+
+		//determinar distancia de la dieta
+		$DISTANCIA= Dieta::dameDistancia($this->arrVuelos,$arrDIAS_DIETA[0],$BASE);
+
+		$INFO=$INFO  . $DISTANCIA . " // ";
+
+		if($DISTANCIA=="NACIONAL") $dieta=$dieta . "N";
+		if($DISTANCIA=="INTERNACIONAL") $dieta=$dieta . "I";
+		if($DISTANCIA=="LARGA"){
+
+			$dieta=$dieta . "L";
+
+			$DIETA_LARGA_REDUCIDA=Dieta::esDietaReducida($this);
+
+			if ($DIETA_LARGA_REDUCIDA)	$INFO=$INFO . "Es Dieta Larga Reducida. " . " // ";
+
+		}
+
+		$BLOCK_OFF_ENELDIA=Dieta::hayBlockOffenElDia($this,$arrDIAS_DIETA[0]);
+
+		if(!$BLOCK_OFF_ENELDIA){
+
+			$dieta=$dieta . "T";
+
+			$INFO=$INFO . "Sin BlockOff en el dia. " . " // ";
+
+		}else{
+
+			$PERNOCTA=Dieta::esPernocta($this,$arrDIAS_DIETA[0],$DISTANCIA);
+
+			$INFO=$INFO . "Dia Calculo Pernocta: " . $arrDIAS_DIETA[0] . " // ";
+
+			$INFO=$INFO . $PERNOCTA . " // ";
+
+			if($PERNOCTA){
+
+				$dieta=$dieta . "P";
+
+			}else{
+
+				$dieta=$dieta . "C";
+
+			}
+
+		}
+
+
+		$this->arrDietas[0]=new Dieta($dieta,$this->piloto);
+
+		if($DIETA_LARGA_REDUCIDA){
+
+			$this->arrDietas[0]->arrDatosDieta['bruto']=round($this->arrDietas[0]->arrDatosDieta['bruto']*0.75,2);
+
+			$this->arrDietas[0]->arrDatosDieta['exento']=round($this->arrDietas[0]->arrDatosDieta['exento']*0.75,2);
+
+			$this->arrDietas[0]->codigo=$this->arrDietas[0]->codigo . "_redu 3/4";
+
+		}
+
+		$this->arrDietas[0]->misc=$INFO;
 
 
 
 		//**************DIETA DE LLEGADA SOLO SI SE LLEGA UN DIA DIFERENTE*************** */
-		if($diaFirma!=$diaDesfirma){
 
-		$dieta="D";
-		if($DISTANCIA=="NACIONAL") $dieta=$dieta . "N";
-		if($DISTANCIA=="INTERNACIONAL") $dieta=$dieta . "I";
-		if($DISTANCIA=="LARGA") $dieta=$dieta . "L";
+		if (!isset($arrDIAS_DIETA[1])){
 
-		if($PERNOCTA){
-
-			$dieta=$dieta . "P";
-
-		}else{
-
-			$dieta=$dieta . "C";
+			return;
 
 		}
+
+		$dieta="DNC";
 
 		$this->arrDietas[1]=new Dieta($dieta,$this->piloto);
 
-		$this->arrDietas[1]->misc="DIETA DE LLEGADA";
-
-		}
-
+		$this->arrDietas[1]->misc="$dieta DIETA DE LLEGADA";
 
 	}
 

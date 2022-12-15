@@ -130,7 +130,10 @@ class Aeropuerto extends Conexion{
 
 	}
 
-
+	/**
+	 * funcion que recorre el array con todos los vuelos para determinar el tipo de
+	 * dieta que corresponde ....
+	 */
 	public static function dameDistancia($arrVuelos){
 
 		$distancia="NACIONAL";
@@ -153,6 +156,8 @@ class Aeropuerto extends Conexion{
 		return $distancia;
 
 	}
+
+
 
 	public function imprimeJsonAeropuerto(){
 

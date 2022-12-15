@@ -145,219 +145,219 @@ class Servicio{
 
 	}
 
-	protected function asignaDietasVuelo(){
-		/**
-		 * 2.2.9 En operaciones de larga distancia,
-		 * por cada día que se inicie un servicio
-		 * en la base operativa del tripulante y se
-		 * realice únicamente una actividad inferior a 2 horas,
-		 * devengará 3/4 dieta del tipo indicado en los puntos anteriores.
-		 */
+	// protected function asignaDietasVuelo(){
+	// 	/**
+	// 	 * 2.2.9 En operaciones de larga distancia,
+	// 	 * por cada día que se inicie un servicio
+	// 	 * en la base operativa del tripulante y se
+	// 	 * realice únicamente una actividad inferior a 2 horas,
+	// 	 * devengará 3/4 dieta del tipo indicado en los puntos anteriores.
+	// 	 */
 
-		$INFO="";
-		$PERNOCTA=false;
-		$DIETA_LARGA_REDUCIDA=false;
+	// 	$INFO="";
+	// 	$PERNOCTA=false;
+	// 	$DIETA_LARGA_REDUCIDA=false;
 
-		//determinar distancia de la dieta
-		$DISTANCIA= Aeropuerto::dameDistancia($this->arrVuelos);
+	// 	//determinar distancia de la dieta
+	// 	$DISTANCIA= Aeropuerto::dameDistancia($this->arrVuelos);
 
-		//obtener la bse del pilto
-		$base=$this->piloto->base;
+	// 	//obtener la bse del pilto
+	// 	$base=$this->piloto->base;
 
 
-		//obtener fechas firmas en hora local
-		//1. obtener el timezone de la base del fulano
-		$laBase=new Aeropuerto($base);
+	// 	//obtener fechas firmas en hora local
+	// 	//1. obtener el timezone de la base del fulano
+	// 	$laBase=new Aeropuerto($base);
 
-		//si han metido un aeropuerto que no existe, le asignamos MAD
-		if($laBase){
+	// 	//si han metido un aeropuerto que no existe, le asignamos MAD
+	// 	if($laBase){
 
-			$time_zone=$laBase->tz;
+	// 		$time_zone=$laBase->tz;
 
-		}else{
+	// 	}else{
 
-			$time_zone="Europe/Madrid";
+	// 		$time_zone="Europe/Madrid";
 
-		}
+	// 	}
 
-		if(!isset($this->fechaFirma)) $this->fechaFirma=new DateTime();
-		if(!isset($this->fechaDesfirma)) $this->fechaDesfirma=new DateTime();
-		$firmaLocal=clone $this->fechaFirma;
-		$desFirmaLocal=clone $this->fechaDesfirma;
+	// 	if(!isset($this->fechaFirma)) $this->fechaFirma=new DateTime();
+	// 	if(!isset($this->fechaDesfirma)) $this->fechaDesfirma=new DateTime();
+	// 	$firmaLocal=clone $this->fechaFirma;
+	// 	$desFirmaLocal=clone $this->fechaDesfirma;
 
-		//paso la hora de firma a la que corresponda en local
-		$firmaLocal->setTimezone(new DateTimeZone($time_zone));
-		$desFirmaLocal->setTimezone(new DateTimeZone($time_zone));
+	// 	//paso la hora de firma a la que corresponda en local
+	// 	$firmaLocal->setTimezone(new DateTimeZone($time_zone));
+	// 	$desFirmaLocal->setTimezone(new DateTimeZone($time_zone));
 
-		$INFO=$INFO . "firma: " . json_encode($firmaLocal);
-		$INFO=$INFO . "DesFirma: " . json_encode($desFirmaLocal);
+	// 	$INFO=$INFO . "firma: " . json_encode($firmaLocal);
+	// 	$INFO=$INFO . "DesFirma: " . json_encode($desFirmaLocal);
 
 
-		//determinar si es pernocta o no ...
+	// 	//determinar si es pernocta o no ...
 
-		if($this->aptFin!=$base){
-			/**
-			 * En el día de que se trate, haya disponibilidad de hotel en el territorio nacional
-			 * fuera del municipio de la base operativa y del municipio de residencia entre las
-			 * 23:00 y las 07:00, considerando BLOCK ON más 60 minutos como entrada en el hotel
-			 */
+	// 	if($this->aptFin!=$base){
+	// 		/**
+	// 		 * En el día de que se trate, haya disponibilidad de hotel en el territorio nacional
+	// 		 * fuera del municipio de la base operativa y del municipio de residencia entre las
+	// 		 * 23:00 y las 07:00, considerando BLOCK ON más 60 minutos como entrada en el hotel
+	// 		 */
 
-			$PERNOCTA=true;
+	// 		$PERNOCTA=true;
 
-			$aptoHotel= new Aeropuerto($this->aptFin);
+	// 		$aptoHotel= new Aeropuerto($this->aptFin);
 
-		}else if($this->aptIni!=$base && $this->aptFin==$base){
-			/**
-			 * y/o se produzca una salida del hotel a cualquier hora
-			 * con llegada a base operativa igual o posterior a las 05:00 (BLOCKS ON).
-			 */
-			$horaDesFirma=(int) $desFirmaLocal->format("H");
+	// 	}else if($this->aptIni!=$base && $this->aptFin==$base){
+	// 		/**
+	// 		 * y/o se produzca una salida del hotel a cualquier hora
+	// 		 * con llegada a base operativa igual o posterior a las 05:00 (BLOCKS ON).
+	// 		 */
+	// 		$horaDesFirma=(int) $desFirmaLocal->format("H");
 
-			if($horaDesFirma>=5) $PERNOCTA=true;
+	// 		if($horaDesFirma>=5) $PERNOCTA=true;
 
-			$aptoHotel= new Aeropuerto($this->aptIni);
+	// 		$aptoHotel= new Aeropuerto($this->aptIni);
 
-		}
+	// 	}
 
-		//veamos cuantas dietas corresponden a este servicio:
+	// 	//veamos cuantas dietas corresponden a este servicio:
 
-		$diaFirma =(int) $firmaLocal->format("d");
-		$diaDesfirma =(int) $desFirmaLocal->format("d");
+	// 	$diaFirma =(int) $firmaLocal->format("d");
+	// 	$diaDesfirma =(int) $desFirmaLocal->format("d");
 
-		//determinar si hay blockoff en el dia:
-		$TRIBUTABLE=false;
+	// 	//determinar si hay blockoff en el dia:
+	// 	$TRIBUTABLE=false;
 
-		$blockOffLocal=clone $this->arrVuelos[0]->fechaIni;
-		$blockOffLocal->setTimezone(new DateTimeZone($time_zone));
-		$diaBlockOff =(int) $blockOffLocal->format("d");
-		$INFO=$INFO . "BlockOff: " . json_encode($blockOffLocal);
+	// 	$blockOffLocal=clone $this->arrVuelos[0]->fechaIni;
+	// 	$blockOffLocal->setTimezone(new DateTimeZone($time_zone));
+	// 	$diaBlockOff =(int) $blockOffLocal->format("d");
+	// 	$INFO=$INFO . "BlockOff: " . json_encode($blockOffLocal);
 
-		if($diaBlockOff>$diaFirma){
+	// 	if($diaBlockOff>$diaFirma){
 
-			$TRIBUTABLE=true;
+	// 		$TRIBUTABLE=true;
 
-			$INFO=$INFO . " Sin BlockOff en el dia";
+	// 		$INFO=$INFO . " Sin BlockOff en el dia";
 
-		}
+	// 	}
 
-		/**
-		 * 2.2.9 En operaciones de larga distancia,
-		 * por cada día que se inicie un servicio en la base operativa del tripulante y
-		 * se realice únicamente una actividad inferior a 2 horas,
-		 * devengará 3/4 dieta del tipo indicado en los puntos anteriores.
-		 */
-		//calcular actividad en el día:
-		$mediaNoche=clone $firmaLocal;
+	// 	/**
+	// 	 * 2.2.9 En operaciones de larga distancia,
+	// 	 * por cada día que se inicie un servicio en la base operativa del tripulante y
+	// 	 * se realice únicamente una actividad inferior a 2 horas,
+	// 	 * devengará 3/4 dieta del tipo indicado en los puntos anteriores.
+	// 	 */
+	// 	//calcular actividad en el día:
+	// 	$mediaNoche=clone $firmaLocal;
 
-		date_time_set($mediaNoche,23,59);
+	// 	date_time_set($mediaNoche,23,59);
 
-		$actEnElDia=$firmaLocal->diff($mediaNoche);
+	// 	$actEnElDia=$firmaLocal->diff($mediaNoche);
 
-		$minsEnElDia=$actEnElDia->h*60+$actEnElDia->i +1;
+	// 	$minsEnElDia=$actEnElDia->h*60+$actEnElDia->i +1;
 
-		if($minsEnElDia<120) $DIETA_LARGA_REDUCIDA=true;
+	// 	if($minsEnElDia<120) $DIETA_LARGA_REDUCIDA=true;
 
 
 
-		//**************DIETA DE SALIDA*************** */
+	// 	//**************DIETA DE SALIDA*************** */
 
-		$dieta="D";
-		if($DISTANCIA=="NACIONAL") $dieta=$dieta . "N";
-		if($DISTANCIA=="INTERNACIONAL") $dieta=$dieta . "I";
-		if($DISTANCIA=="LARGA"){
+	// 	$dieta="D";
+	// 	if($DISTANCIA=="NACIONAL") $dieta=$dieta . "N";
+	// 	if($DISTANCIA=="INTERNACIONAL") $dieta=$dieta . "I";
+	// 	if($DISTANCIA=="LARGA"){
 
-			if ($DIETA_LARGA_REDUCIDA){
+	// 		if ($DIETA_LARGA_REDUCIDA){
 
-				$dieta=$dieta . "L";
-				$INFO=$INFO . "Menos de 2Hrs de Actividad en el dia. ";
+	// 			$dieta=$dieta . "L";
+	// 			$INFO=$INFO . "Menos de 2Hrs de Actividad en el dia. ";
 
-			}else{
+	// 		}else{
 
-				$dieta=$dieta . "L";
+	// 			$dieta=$dieta . "L";
 
-			}
+	// 		}
 
-		}
+	// 	}
 
-		if($TRIBUTABLE){
+	// 	if($TRIBUTABLE){
 
-			$dieta=$dieta . "T";
+	// 		$dieta=$dieta . "T";
 
-		}else{
+	// 	}else{
 
-			if($PERNOCTA){
+	// 		if($PERNOCTA){
 
-				$dieta=$dieta . "P";
+	// 			$dieta=$dieta . "P";
 
-			}else{
+	// 		}else{
 
-				$dieta=$dieta . "C";
+	// 			$dieta=$dieta . "C";
 
-			}
+	// 		}
 
-		}
+	// 	}
 
 
-		$this->arrDietas[0]=new Dieta($dieta,$this->piloto);
+	// 	$this->arrDietas[0]=new Dieta($dieta,$this->piloto);
 
-		if($DIETA_LARGA_REDUCIDA){
+	// 	if($DIETA_LARGA_REDUCIDA){
 
-			$this->arrDietas[0]->arrDatosDieta['bruto']=round($this->arrDietas[0]->arrDatosDieta['bruto']*0.75,2);
+	// 		$this->arrDietas[0]->arrDatosDieta['bruto']=round($this->arrDietas[0]->arrDatosDieta['bruto']*0.75,2);
 
-			$this->arrDietas[0]->arrDatosDieta['exento']=round($this->arrDietas[0]->arrDatosDieta['exento']*0.75,2);
+	// 		$this->arrDietas[0]->arrDatosDieta['exento']=round($this->arrDietas[0]->arrDatosDieta['exento']*0.75,2);
 
-			$this->arrDietas[0]->codigo=$this->arrDietas[0]->codigo . "_redu 3/4";
+	// 		$this->arrDietas[0]->codigo=$this->arrDietas[0]->codigo . "_redu 3/4";
 
-		}
+	// 	}
 
-		$this->arrDietas[0]->misc=$INFO;
+	// 	$this->arrDietas[0]->misc=$INFO;
 
 
 
-		//**************DIETA DE LLEGADA SOLO SI SE LLEGA UN DIA DIFERENTE*************** */
-		if($diaFirma!=$diaDesfirma){
+	// 	//**************DIETA DE LLEGADA SOLO SI SE LLEGA UN DIA DIFERENTE*************** */
+	// 	if($diaFirma!=$diaDesfirma){
 
-			$dieta="D";
-			if($DISTANCIA=="NACIONAL") $dieta=$dieta . "N";
-			if($DISTANCIA=="INTERNACIONAL") $dieta=$dieta . "I";
-			if($DISTANCIA=="LARGA") $dieta=$dieta . "L";
+	// 		$dieta="D";
+	// 		if($DISTANCIA=="NACIONAL") $dieta=$dieta . "N";
+	// 		if($DISTANCIA=="INTERNACIONAL") $dieta=$dieta . "I";
+	// 		if($DISTANCIA=="LARGA") $dieta=$dieta . "L";
 
-			$TRIBUTABLE=false;
+	// 		$TRIBUTABLE=false;
 
-			if($diaBlockOff<$diaDesfirma){
+	// 		if($diaBlockOff<$diaDesfirma){
 
-				$TRIBUTABLE=true;
+	// 			$TRIBUTABLE=true;
 
-				$INFO=$INFO . " Sin BlockOff en el dia";
+	// 			$INFO=$INFO . " Sin BlockOff en el dia";
 
-			}
+	// 		}
 
-			if($TRIBUTABLE){
+	// 		if($TRIBUTABLE){
 
-				$dieta=$dieta . "T";
+	// 			$dieta=$dieta . "T";
 
-			}else{
+	// 		}else{
 
-				if($PERNOCTA){
+	// 			if($PERNOCTA){
 
-					$dieta=$dieta . "P";
+	// 				$dieta=$dieta . "P";
 
-				}else{
+	// 			}else{
 
-					$dieta=$dieta . "C";
+	// 				$dieta=$dieta . "C";
 
-				}
+	// 			}
 
-			}
+	// 		}
 
-			$this->arrDietas[1]=new Dieta($dieta,$this->piloto);
+	// 		$this->arrDietas[1]=new Dieta($dieta,$this->piloto);
 
-			$this->arrDietas[1]->misc="$dieta DIETA DE LLEGADA";
+	// 		$this->arrDietas[1]->misc="$dieta DIETA DE LLEGADA";
 
-			}
+	// 		}
 
 
-	}
+	// }
 
 	protected function asignaDietasVuelo2(){
 
@@ -372,6 +372,8 @@ class Servicio{
 		//veamos cuantas dietas corresponden a este servicio:
 
 		$arrDIAS_DIETA=Dieta::dameDiasDieta($this);
+
+		$INFO=$INFO . "DIETAS DIA: $arrDIAS_DIETA[0] // ";
 
 		$INFO=$INFO . json_encode($arrDIAS_DIETA) . " // ";
 
@@ -426,6 +428,8 @@ class Servicio{
 
 				$dieta=$dieta . "C";
 
+				if($this->aptFin==$BASE) $INFO=$INFO . "LLegada anterior a las 05:00LT.  // ";
+
 			}
 
 		}
@@ -448,6 +452,7 @@ class Servicio{
 
 
 		//**************DIETA DE LLEGADA SOLO SI SE LLEGA UN DIA DIFERENTE*************** */
+		//dieta2:
 
 		if (!isset($arrDIAS_DIETA[1])){
 
@@ -455,11 +460,91 @@ class Servicio{
 
 		}
 
-		$dieta="DNC";
+		//reseteo de variables para el segundo calculo
+
+		$INFO="";
+
+		$INFO=$INFO . "DIETAS DIA: $arrDIAS_DIETA[1] // ";
+
+		$PERNOCTA=false;
+
+		$DIETA_LARGA_REDUCIDA=false;
+
+		$INFO=$INFO . json_encode($arrDIAS_DIETA) . " // ";
+
+		$dieta="D";
+
+		//determinar distancia de la dieta
+		$DISTANCIA= Dieta::dameDistancia($this->arrVuelos,$arrDIAS_DIETA[1],$BASE);
+
+		$INFO=$INFO  . $DISTANCIA . " // ";
+
+		if($DISTANCIA=="NACIONAL") $dieta=$dieta . "N";
+		if($DISTANCIA=="INTERNACIONAL") $dieta=$dieta . "I";
+		if($DISTANCIA=="LARGA"){
+
+			$dieta=$dieta . "L";
+
+			//las segundas dietas nunca seran dietas reducidas
+			//$DIETA_LARGA_REDUCIDA=Dieta::esDietaReducida($this);
+
+			if ($DIETA_LARGA_REDUCIDA)	$INFO=$INFO . "Es Dieta Larga Reducida. " . " // ";
+
+		}
+
+		//por lo visto esto no aplica en las segundas dietas de los servicios
+		//asi que lo asigno como si hubiera un blockoff
+		$BLOCK_OFF_ENELDIA=Dieta::hayBlockOffenElDia($this,$arrDIAS_DIETA[1]);
+
+		if(!$BLOCK_OFF_ENELDIA){
+
+			if($this->aptFin!=$BASE){
+
+				$dieta=$dieta . "P";
+
+				$INFO=$INFO . "Sin BlockOff en el dia, pero con Hotel. // ";
+
+			}else{
+
+				$dieta=$dieta . "T";
+
+				$INFO=$INFO . "Sin BlockOff en el dia. " . " // ";
+
+			}
+
+		}else{
+
+			$PERNOCTA=Dieta::esPernocta($this,$arrDIAS_DIETA[1],$DISTANCIA);
+
+			$INFO=$INFO . "Dia Calculo Pernocta: " . $arrDIAS_DIETA[1] . " // ";
+
+			$INFO=$INFO . $PERNOCTA . " // ";
+
+			if($PERNOCTA){
+
+				$dieta=$dieta . "P";
+
+			}else{
+
+				$dieta=$dieta . "C";
+
+			}
+
+		}
 
 		$this->arrDietas[1]=new Dieta($dieta,$this->piloto);
 
-		$this->arrDietas[1]->misc="$dieta DIETA DE LLEGADA";
+		if($DIETA_LARGA_REDUCIDA){
+
+			$this->arrDietas[1]->arrDatosDieta['bruto']=round($this->arrDietas[1]->arrDatosDieta['bruto']*0.75,2);
+
+			$this->arrDietas[1]->arrDatosDieta['exento']=round($this->arrDietas[1]->arrDatosDieta['exento']*0.75,2);
+
+			$this->arrDietas[1]->codigo=$this->arrDietas[1]->codigo . "_redu 3/4";
+
+		}
+
+		$this->arrDietas[1]->misc=$INFO;
 
 	}
 

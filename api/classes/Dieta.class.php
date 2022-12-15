@@ -258,23 +258,17 @@ class Dieta extends Conexion{
 		//obtener la bse del pilto
 		$BASE=$servicio->piloto->base;
 
+		$time_zone="Europe/Madrid";
+
 		//obtener fechas firmas en hora local
 		//1. obtener el timezone de la base del fulano
 		$laBase=new Aeropuerto($BASE);
 
 		//si han metido un aeropuerto que no existe, le asignamos MAD
-		if($laBase){
+		if($laBase) $time_zone=$laBase->tz;
 
-			$time_zone=$laBase->tz;
-
-		}else{
-
-			$time_zone="Europe/Madrid";
-
-		}
-
-		if(!isset($servicio->fechaFirma)) $servicio->fechaFirma=new DateTime();
-		if(!isset($servicio->fechaDesfirma)) $servicio->fechaDesfirma=new DateTime();
+		// if(!isset($servicio->fechaFirma)) $servicio->fechaFirma=new DateTime();
+		// if(!isset($servicio->fechaDesfirma)) $servicio->fechaDesfirma=new DateTime();
 		$firmaLocal=clone $servicio->fechaFirma;
 		$desFirmaLocal=clone $servicio->fechaDesfirma;
 
@@ -285,7 +279,15 @@ class Dieta extends Conexion{
 		$diaFirma =(int) $firmaLocal->format("d");
 		$diaDesfirma =(int) $desFirmaLocal->format("d");
 
-		return [$diaFirma,$diaDesfirma];
+		if($diaFirma==$diaDesfirma){
+
+			return [$diaFirma];
+
+		}else{
+
+			return [$diaFirma,$diaDesfirma];
+
+		}
 
 	}
 
@@ -294,6 +296,14 @@ class Dieta extends Conexion{
 		$time_zone="Europe/Madrid";
 		//obtener la bse del pilto
 		$BASE=$servicio->piloto->base;
+
+		/**
+		 * 2.2.9 En operaciones de larga distancia, por cada día que se inicie un servicio
+		 * en la base operativa del tripulante y se realice únicamente una actividad inferior a 2 horas,
+		 * devengará 3/4 dieta del tipo indicado en los puntos anteriores.
+		 */
+		//solo puede ser dieta reducida si se sale de la base y es operacion de larga
+		if($servicio->aptIni!=$BASE) return false;
 
 		//obtener fechas firmas en hora local
 		//1. obtener el timezone de la base del fulano

@@ -4,6 +4,7 @@ class Dieta extends Conexion{
 
 	public $codigo;
 	public $arrDatosDieta;
+	public $diaDieta;
 
 /**Funcion constructora, devuelve false si el codigo de dieta no existe
  * @param $codigo son las siglas enmayuscula de la dieta a crear
@@ -253,6 +254,21 @@ class Dieta extends Conexion{
 
 	}
 
+	public static function dameDistanciaApto($codigo){
+
+		$distancia="NACIONAL";
+
+		$unApto= new Aeropuerto($codigo);
+
+			if($unApto->tipo=="LARGA") $distancia="LARGA";
+			if($unApto->tipo=="INTERNACIONAL" && $distancia!="LARGA") $distancia="INTERNACIONAL";
+
+		return $distancia;
+
+	}
+
+
+
 	public static function dameDiasDieta($servicio){
 
 		//obtener la bse del pilto
@@ -267,8 +283,7 @@ class Dieta extends Conexion{
 		//si han metido un aeropuerto que no existe, le asignamos MAD
 		if($laBase) $time_zone=$laBase->tz;
 
-		// if(!isset($servicio->fechaFirma)) $servicio->fechaFirma=new DateTime();
-		// if(!isset($servicio->fechaDesfirma)) $servicio->fechaDesfirma=new DateTime();
+
 		$firmaLocal=clone $servicio->fechaFirma;
 		$desFirmaLocal=clone $servicio->fechaDesfirma;
 

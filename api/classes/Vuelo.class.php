@@ -46,6 +46,8 @@ class Vuelo {
 	public $importePorEsteVuelo=0;
 
 	public $observaciones="Sin Observaciones";
+	public $misc="";
+	public $fantasma=false;
 
 
 	public function __construct($fila,$piloto){
@@ -94,6 +96,15 @@ class Vuelo {
 
 	private function calculaTiempoBlock(){
 
+		//primero miramos si el vuelo forma parte del calculo de este mes;
+
+		if ($this->fechaIni->format('n')!=$_SESSION['mesInforme'] && $_SESSION['mesInforme']!=0){
+
+			$this->fantasma=true;
+			return;
+
+		}
+
 		Vuelo::$totalHorasBlock=Vuelo::$totalHorasBlock+$this->tiempoBlock->h;
 		Vuelo::$totalMinutosBlock=Vuelo::$totalMinutosBlock+$this->tiempoBlock->i;
 
@@ -135,6 +146,15 @@ class Vuelo {
 		$tiempoPerfil=$this->perfil["tiempo_perfil"];
 
 		$arrTimepoPerfil=explode(":",$tiempoPerfil);
+
+		//si el vuelo no corresponde al mes del informe no actualizo totales
+		//ni hago mas calculos
+		if ($this->fechaIni->format('n')!=$_SESSION['mesInforme'] && $_SESSION['mesInforme']!=0){
+
+			$this->fantasma=true;
+			return;
+
+		}
 
 		Vuelo::$totalHorasPerfil=Vuelo::$totalHorasPerfil+$arrTimepoPerfil[0];
 

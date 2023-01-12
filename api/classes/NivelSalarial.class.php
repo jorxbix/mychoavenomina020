@@ -3,6 +3,8 @@
 class NivelSalarial extends Conexion{
 
 	public $codigo;
+	public $arrDatosNivel;
+	public $arrDatosDieta;
 
 
 

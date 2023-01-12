@@ -19,6 +19,8 @@ class Perfil extends Conexion{
 	public $tiempo_firma;
 	public $tiempo_desfirma;
 
+	public $arrDatosPerfil;
+
 
 /**Funcion constructora, devuelve false si el codigo de perfil no existe
  * @param $nombre son las siglas del perfil enmayuscula

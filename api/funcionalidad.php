@@ -18,7 +18,7 @@ session_start();
 //_PHP_Incomplete_Class_Name con la clasee HoraMemorizada almacenada en session
 
 $sonVuelos=["CO","CR","PM","PR","PS","VS"];
-$sonServTierra=["SR","OC","EN","XX"];
+$sonServTierra=["SR","OC","EN","XX","SA","FR"];
 
 //09h para considerar dos actividades diferrentes
 $tiempoEntreServicios=new DateInterval("PT09H");
@@ -26,6 +26,5 @@ $tiempoEntreServicios=new DateInterval("PT09H");
 $limiteH1=55;
 $limiteH2=75;
 $limiteActExtra=160;
-
 
 ?>

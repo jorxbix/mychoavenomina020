@@ -4,7 +4,7 @@ $con=new Conexion();
 $sql="SELECT * FROM log_accesos ORDER BY fecha DESC LIMIT 100;";
 $resultado=$con->query($sql);
 $registros=$resultado->fetchAll(PDO::FETCH_ASSOC);
-// echo json_encode($registros);
+
 
 ?>
 
@@ -37,11 +37,11 @@ $registros=$resultado->fetchAll(PDO::FETCH_ASSOC);
 <body>
 <table>
         <tr>
-            <th>fecha</th><th>id_acceso</th><th>ip</th>
+            <th>fecha</th><th>id_acceso</th><th>ip</th><th>log</th>
         </tr>
         <?php
         foreach($registros as $reg){
-            echo "<tr><td>{$reg['fecha']}</td><td>{$reg['id_acceso']}</td><td>{$reg['ip']}</td></tr>";
+            echo "<tr><td>{$reg['fecha']}</td><td>{$reg['id_acceso']}</td><td>{$reg['ip']}</td><td>{$reg['nombre_usuario']}</td></tr>";
         }
         ?>
     </table>

@@ -248,10 +248,10 @@ function restProcesaProg($datos){
 	$ultimoVueloProcesado=null;
 	$i=0;
 	$servicioPendiente=false;
+
 	$mismoServicio=new Servicio(null,null);
 
 	foreach($datos->progra as $servicio){
-
 
 		//1.ES UN SERVICIO DE VUELO
 		if(in_array($servicio->tipo,$sonVuelos)){
@@ -268,6 +268,12 @@ function restProcesaProg($datos){
 					$mismoServicio->calculaActividad();
 
 					array_push($contenedor,$mismoServicio);
+
+					if(Servicio::$dietaPendiente){
+
+						array_push($contenedor,dame_SA_dieta());
+
+					}
 
 					$servicioPendiente=false;
 
@@ -314,6 +320,7 @@ function restProcesaProg($datos){
 
 		//2.NO ES UN SERVICIO DE VUELO (por lo tanto sera un servicio diferente, pues NOOOO)
 		}else{
+
 			//guardo en el contenedor solamente cuando empieza
 			//un servicio nuevo y no guardo el primero
 			//como coño voy a saber cunado es el ultimo servicio???
@@ -322,6 +329,12 @@ function restProcesaProg($datos){
 				$mismoServicio->calculaActividad();
 
 				array_push($contenedor,$mismoServicio);
+
+				if(Servicio::$dietaPendiente){
+
+					array_push($contenedor,dame_SA_dieta());
+
+				}
 
 				$servicioPendiente=false;
 
@@ -334,6 +347,12 @@ function restProcesaProg($datos){
 
 				array_push($contenedor,$miImaginaria);
 
+				if(Servicio::$dietaPendiente){
+
+					array_push($contenedor,dame_SA_dieta());
+
+				}
+
 			}else{
 
 				$miServicio=new Servicio($servicio,$miPiloto);
@@ -341,6 +360,12 @@ function restProcesaProg($datos){
 				$miServicio->calculaActividad();
 
 				array_push($contenedor,$miServicio);
+
+				if(Servicio::$dietaPendiente){
+
+					array_push($contenedor,dame_SA_dieta());
+
+				}
 
 			}
 
@@ -357,6 +382,12 @@ function restProcesaProg($datos){
 
 		array_push($contenedor,$mismoServicio);
 
+		if(Servicio::$dietaPendiente){
+
+			array_push($contenedor,dame_SA_dieta());
+
+		}
+
 		$servicioPendiente=false;
 
 	}
@@ -366,6 +397,31 @@ function restProcesaProg($datos){
 	exit;
 
 
+}
+
+function dame_SA_dieta(){
+
+	if(Servicio::$dietaPendiente){
+
+		$servicio_SA_dieta=Servicio::$dietaPendiente;
+
+		Servicio::$dietaPendiente=null;
+
+		$servicio_SA_dieta->tipo="SA";
+
+		//$servicio_SA_dieta->aptIni=$servicio_SA_dieta->aptFin;
+
+		//quito la primera dieta que ya estaba contada
+		array_shift($servicio_SA_dieta->arrDietas);
+
+		$servicio_SA_dieta->arrVuelos=null;
+
+		$servicio_SA_dieta->misc="SA con Dieta";
+
+		return $servicio_SA_dieta;
+
+
+	}
 }
 
 /**
@@ -386,9 +442,13 @@ function esServicioDiferente($vueloA,$vueloB){
 	$horasEntreVuelos=$difEntreVuelos->d*24+$difEntreVuelos->h;
 
 	if($horasEntreVuelos>$tiempoEntreServicios->h){
+
 		return true;
+
 	}else{
+
 		return false;
+
 	}
 
 }
@@ -396,13 +456,22 @@ function esServicioDiferente($vueloA,$vueloB){
 
 function memorizaHoras($datos){
 
-	$contenedor=[];
-
 	global $sonVuelos;
+
+	global $mesInforme;
+
+	$arrMeses=[];
+
+	$contenedor=[];
 
 	$i=0;
 
 	foreach($datos->prograMEM as $servicio){
+
+		//meto en el array todos los meses que estan en la prog para determinar de que mes
+		//se van a sacar los totales
+		$arrFecha=explode("/", $servicio->fechaIni);
+		array_push($arrMeses,$arrFecha[1]);
 
 		//1.ES UN SERVICIO DE VUELO
 		if(in_array($servicio->tipo,$sonVuelos)){
@@ -418,6 +487,12 @@ function memorizaHoras($datos){
 
 		$i++;
 	}
+
+	//BUSCO EL MES MAS COMUN PARA DETERMINAR EL MES DEL INFORME
+	$values = array_count_values($arrMeses);
+	arsort($values);
+	$popular = array_slice(array_keys($values), 0, 5, true);
+	$_SESSION['mesInforme']=$popular[0];
 
 	//guardamos los vuelos programados en una variable session para poder acceder a
 	//ellos en cualquine momento de la sesion del ususario. Se sobreescribiran cada

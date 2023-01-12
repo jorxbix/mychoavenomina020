@@ -1,7 +1,9 @@
 var arrServiciosVuelo=["CO","PM","PR","CS","VS"];
-var arrServiciosTierra=["CR","SR","SIM","RM","OC"];
-var arrServiciosLibre=["LI","LN","VA","SA","FR","VA","BA","RT","LB"];
+var arrServiciosTierra=["CR","SR","SIM","RM","OC","DI"];
+var arrServiciosLibre=["LI","LN","VA","FR","VA","BA","RT","LB"];
 var arrServiciosImaginaria=["IM"];
+var arrServiciosSA=["SA"];
+
 var rutaApi="/mychoavenomina/api/programacion"
 
 var importePerfil=0;
@@ -20,6 +22,13 @@ var importeNoc=0;
 
 var horasActividadEx="";
 var importeEx=0;
+
+var desglosePerfil="";
+
+var numeroDietas=0;
+var dietasExentas=0;
+var dietasSujetas=0;
+var dietasBruto=0;
 
 
 window.onload=function(){
@@ -108,6 +117,11 @@ function volverPreparacion(eve){
     horasActividadEx=0;
     importeEx=0;
 
+    numeroDietas=0;
+    dietasExentas=0;
+    dietasSujetas=0;
+    dietasBruto=0;
+
     //****************aqui hay qua vaciar el contenido del div para que no salga repetida */
     let divResultados=document.getElementById("divResultados");
 
@@ -161,7 +175,6 @@ function procesaPiloto(){
 
     };
 
-    //console.log(piloto);
     return piloto;
 
 }
@@ -280,9 +293,6 @@ function doPost(datos){
 
     let req= new XMLHttpRequest();
 
-    //aña
-    //console.log(rutaApi + '?random=' + Math.floor(Math.random() * 10001));
-
        req.open("POST", rutaApi + '?random=' + Math.floor(Math.random() * 10001));
 
        req.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
@@ -338,7 +348,6 @@ function crearResumen(){
     const txtImaginarias=document.createTextNode(cadena);
 
     pImaginarias.appendChild(txtImaginarias);
-    //document.getElementById("divResultados").appendChild(pImaginarias);
 
     //resumen VS
     const pVS= document.createElement("p");
@@ -346,21 +355,15 @@ function crearResumen(){
     const txtVS=document.createTextNode(cadenaVS);
 
     pVS.appendChild(txtVS);
-    //document.getElementById("divResultados").appendChild(pVS);
 
     //resumen perfil
     const pPerfil= document.createElement("p");
-    let cadena2= horasPerfil + " Horas Perfil, " + importePerfil.toFixed(2) + " €";
+    let cadena2= horasPerfil + " Horas Perfil, " + importePerfil.toFixed(2) + " €, (" + desglosePerfil + ")";
     const txtPerfil=document.createTextNode(cadena2);
 
     pPerfil.appendChild(txtPerfil);
-    //document.getElementById("divResultados").appendChild(pPerfil);
 
-    // //resumen actividad
-    // var horasActividad="";
-    // var horasActividadNocturna="";
-    // var importeNoc=0;
-
+    //resumen actividad
     const pActividad= document.createElement("p");
     let cadena3= "Total Actividad: " + horasActividad + ", Nocturna: " +
     horasActividadNocturna + " (" + importeNoc + "€)" + ", Extraordinaria: " +
@@ -368,7 +371,18 @@ function crearResumen(){
     const txtActividad=document.createTextNode(cadena3);
 
     pActividad.appendChild(txtActividad);
-    //document.getElementById("divResultados").appendChild(pActividad);
+
+    //resumen dietas
+    const pDietas= document.createElement("p");
+    let cadena4= numeroDietas + " Dietas, Total BRUTO: " + dietasBruto.toFixed(2) +
+    "€, Exentas Tributacion: " + dietasExentas.toFixed(2) +
+    "€, Sujetas Retencion: " + dietasSujetas.toFixed(2) + "€";
+    const txtDietas=document.createTextNode(cadena4);
+
+    pDietas.appendChild(txtDietas);
+
+
+
 
     const divResumen=document.createElement("div");
     divResumen.classList.add("uk-card");
@@ -381,6 +395,7 @@ function crearResumen(){
     divResumen.appendChild(pVS);
     divResumen.appendChild(pPerfil);
     divResumen.appendChild(pActividad);
+    divResumen.appendChild(pDietas);
     document.getElementById("divResultados").appendChild(divResumen);
 
 
@@ -440,6 +455,18 @@ function presentaResultados(unArchivoJson){
 
             escribeLibre(LINEA);
 
+        }else if (arrServiciosSA.includes(codigoServicio)){
+
+            if(LINEA.arrDietas==undefined){
+
+                escribeLibre(LINEA);
+
+            }else{
+
+                escribeSA(LINEA);
+
+            }
+
         }else{
 
             escribeAlgoRaro(LINEA);
@@ -486,6 +513,8 @@ function escribeVuelo(linea){
         let unDiv=document.createElement("div");
         unDiv.classList.add("servicioVuelo");
 
+        if(linea.arrVuelos[i].fantasma==true) unDiv.classList.add("fantasma");
+
         unDiv.innerHTML=
         '<ul uk-accordion>' +
                 '<li>' +
@@ -506,7 +535,7 @@ function escribeVuelo(linea){
 
         let unH4= document.createElement("h4");
 
-        unH4.innerHTML= 'Vuelo: <p>' +
+        unH4.innerHTML= '<p>Vuelo: </p><p>' +
         convertirFechaHora(linea.arrVuelos[i].fechaIni.date.substr(0,16)) + '</p><p>' +
         convertirFechaHora(linea.arrVuelos[i].fechaFin.date.substr(0,16)) +
         '</p><p> (Horas Block: ' + convertirCadenaHsMs(linea.arrVuelos[i].tiempoBlock.h, linea.arrVuelos[i].tiempoBlock.i) +
@@ -536,6 +565,7 @@ function escribeVuelo(linea){
         '€</p><p>Desglose Perfil: ' + linea.arrVuelos[i].observaciones +
         '</p>';
 
+        desglosePerfil=linea.arrVuelos[i].observaciones;
 
         unDiv.appendChild(unH4);
         unContenedor.appendChild(unDiv);
@@ -602,6 +632,109 @@ function escribeTierra(linea){
 
 }
 
+function escribeSA(linea){
+    console.log(linea);
+
+    unDiv=document.createElement("div");
+    unDiv.classList.add("servicioSA");
+
+    unDiv.innerHTML=
+    '<ul uk-accordion>' +
+    '<li>' +
+        '<a class="uk-accordion-title" href="#">' +
+            '<h3><span class="uk-label">' + dameDia(linea.arrDietas[0].diaDieta.date) + '</span> SA '  +
+             linea.aptFin + '</h3>' +
+        '</a>' +
+        '<div class="uk-accordion-content">' + linea.misc + '</div>' +
+    '</li>' +
+    '</ul>' ;
+
+    let unDivDieta=escribeDieta(linea);
+
+    unDiv.appendChild(unDivDieta);
+
+    document.getElementById("divResultados").appendChild(unDiv);
+
+
+}
+
+/**
+ *
+ * @param {linea} linea de la programacion que se procesoa
+ * devuelve un div que contiene la dieta aparte de augmentar los contadores para el resumen
+ *
+ */
+function escribeDieta(linea){
+
+    const mesInforme=linea.mesDelInforme;
+    const diaDieta=new Date(linea.arrDietas[0].diaDieta.date);
+    const mesDieta=diaDieta.getMonth() + 1;
+
+    let i=0;
+
+    if(mesDieta!=mesInforme && mesInforme!=0){
+
+        let observaciones= "Esta Dieta se percibe en otro mes.";
+
+        let unDivDieta=document.createElement("div");
+
+        unDivDieta.classList.add("dieta");
+        unDivDieta.classList.add("fantasma");
+
+        unDivDieta.innerHTML=
+            '<ul uk-accordion>' +
+                    '<li>' +
+                    '<a class="uk-accordion-title" href="#">' +
+                    '<h3>' + linea.arrDietas[i].codigo + " " +
+                        linea.arrDietas[i].arrDatosDieta.nombre + '</h3>' +
+                    '</a>' +
+                '<div class="uk-accordion-content">' +
+                    '<p>'  + "Bruto: " + linea.arrDietas[i].arrDatosDieta.bruto + '€, Exento: '+ linea.arrDietas[i].arrDatosDieta.exento + '€' +
+                    '</p>' +
+                    '<p>'  + linea.arrDietas[i].misc + observaciones +
+                    '</p>' +
+                '</div>' +
+                    '</li>' +
+                '</ul>';
+
+        return unDivDieta;
+
+    }
+
+
+    let observaciones= "mes Informe: " + mesInforme + ", mes Dieta: " + mesDieta;
+
+    i=0;
+
+    let unDivDieta=document.createElement("div");
+
+    unDivDieta.classList.add("dieta");
+
+    unDivDieta.innerHTML=
+        '<ul uk-accordion>' +
+                '<li>' +
+                '<a class="uk-accordion-title" href="#">' +
+                '<h3>' + linea.arrDietas[i].codigo + " " +
+                    linea.arrDietas[i].arrDatosDieta.nombre + '</h3>' +
+                '</a>' +
+            '<div class="uk-accordion-content">' +
+                '<p>'  + "Bruto: " + linea.arrDietas[i].arrDatosDieta.bruto + '€, Exento: '+ linea.arrDietas[i].arrDatosDieta.exento + '€' +
+                '</p>' +
+                '<p>'  + linea.arrDietas[i].misc + observaciones +
+                '</p>' +
+            '</div>' +
+                '</li>' +
+            '</ul>';
+
+    dietasBruto=dietasBruto + parseFloat(linea.arrDietas[i].arrDatosDieta.bruto);
+    dietasExentas=dietasExentas + parseFloat(linea.arrDietas[i].arrDatosDieta.exento);
+    dietasSujetas=dietasSujetas + parseFloat((linea.arrDietas[i].arrDatosDieta.bruto - linea.arrDietas[i].arrDatosDieta.exento));
+    numeroDietas++;
+
+    return unDivDieta;
+
+}
+
 function escribeLibre(linea){
 
     unDiv=document.createElement("div");
@@ -634,6 +767,8 @@ function escribeContenedorServicio(linea){
     unDiv=document.createElement("div");
     unDiv.classList.add("contenedorServicios");
 
+    if(linea.fantasma==true) unDiv.classList.add("fantasma");
+
     unDiv.innerHTML=
     '<ul uk-accordion>' +
     '<li>' +
@@ -646,7 +781,7 @@ function escribeContenedorServicio(linea){
     '</ul>' ;
 
 
-    unDiv.innerHTML=unDiv.innerHTML+'<h4>' +
+    unDiv.innerHTML=unDiv.innerHTML+'<h4><p>' +
     'Ini Act: ' + convertirFechaHora(linea.fechaFirma.date.substr(0,16)) + '</p><p>' +
     'Fin Act: ' + convertirFechaHora(linea.fechaDesfirma.date.substr(0,16)) +
     '</p><p> Horas Actividad: ' + convertirCadenaHsMs(linea.tiempoActividad.h, linea.tiempoActividad.i) +
@@ -669,34 +804,9 @@ function escribeContenedorServicio(linea){
     importeEx=parseFloat(linea.contadorImpEx).toFixed(2);
 
     //***************ESCRIBIR LAS DIETAS******************* */
-    let i=0;
+    let unDivDieta=escribeDieta(linea);
 
-    for (let dieta of linea.arrDietas){
-
-        let unDivDieta=document.createElement("div");
-
-        unDivDieta.classList.add("dieta");
-
-        unDivDieta.innerHTML=
-        '<ul uk-accordion>' +
-                '<li>' +
-                '<a class="uk-accordion-title" href="#">' +
-                '<h3>' + linea.arrDietas[i].codigo + " " +
-                    linea.arrDietas[i].arrDatosDieta.nombre + " (" + linea.arrDietas[i].arrDatosDieta.bruto + ')</h3>' +
-                '</a>' +
-            '<div class="uk-accordion-content">' +
-                '<p>'  + linea.arrDietas[i].misc +
-                '</p>' +
-            '</div>' +
-                '</li>' +
-            '</ul>';
-
-        //augmento el contador para la siguinete dieta
-        unDiv.appendChild(unDivDieta);
-        i++;
-
-
-    }
+    unDiv.appendChild(unDivDieta);
 
     return unDiv;
 

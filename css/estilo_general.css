@@ -51,6 +51,7 @@ textarea{
 }
 
 div{
+    background-color: white;
     border-radius: 5px;
     border: solid 1px;
     margin: 10px 10px;
@@ -89,10 +90,20 @@ div{
 
 }
 
+.fantasma {
+    background-color: lightgrey;
+    border-color: darkgrey;
+
+}
+
+.fantasma > h3{
+
+    color: lightgray;
+}
+
 .servicioVuelo h3{
 
     border-radius: 5px;
-    /* background-color: rgb(218, 218, 250); */
 
 }
 .servicioVuelo p{
@@ -113,6 +124,13 @@ div{
     border-radius: 5px;
     border: solid 2px darkgreen;
     border-left: solid 10px darkgreen;
+
+}
+
+.servicioSA{
+    border-radius: 5px;
+    border: solid 2px lightslategray;
+    border-left: solid 10px lightslategray;
 
 }
 
@@ -149,6 +167,18 @@ p{
 .contenedorServicios ul{
 
     margin-bottom: 0px;
+}
+
+.servicioSA ul{
+
+    margin-bottom: 0px;
+}
+
+.servicioSA h4{
+    margin: 2px 2px 0px 0px;
+    padding: 4px 2px 0px 0px;
+
+
 }
 
 .servicioVuelo ul{

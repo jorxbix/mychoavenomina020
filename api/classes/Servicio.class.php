@@ -92,6 +92,7 @@ class Servicio{
  */
 	public function __construct($fila,$piloto){
 
+		if(!isset($_SESSION['mesInforme'])) $_SESSION['mesInforme']=0;
 		$this->mesDelInforme=$_SESSION['mesInforme'];
 
 		//truco para crear un objecto servicio vacio

@@ -95,6 +95,26 @@ function checkSession(){
 
     </div>
 
+    <div>
+
+        <a href="media/mychoavenomina040.zip">
+
+            Aqui un archivo ZIP con el codigo en uso .... ver 0.40 (13/ENE/2023)
+
+        </a>
+
+        <ul>
+                <li>Añadida funcionalidad para el cálculo de dietas.</li>
+                <li>Añadida funcionalidad para crear totales conforme al mes del calculo.</li>
+                <li>Error conocido con los calculos de act extra en destinos como MDE y PTY.</li>
+                <li>Error conocido con el calculo de act nocturna y extra en servicios de tierra como el simulador.</li>
+                <li>Corregidos fallos menores en todas las areas.</li>
+
+        </ul>
+
+
+    </div>
+
     <div id="divActExtra">
 
         <a href="#divActExtra">

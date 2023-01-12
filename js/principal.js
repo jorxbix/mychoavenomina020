@@ -667,8 +667,23 @@ function escribeSA(linea){
 function escribeDieta(linea){
 
     const mesInforme=linea.mesDelInforme;
-    const diaDieta=new Date(linea.arrDietas[0].diaDieta.date);
+
+    console.log("mes del informe: " + mesInforme);
+
+    let ddieta=linea.arrDietas[0].diaDieta.date;
+
+    console.log("dia dieta: " + ddieta);
+    console.log(ddieta.replace(" ","T"));
+
+    const diaDieta=new Date(ddieta.replace(" ","T"));
+
+    console.log("Objeto diaDieta: ");
+    console.log(diaDieta);
+
     const mesDieta=diaDieta.getMonth() + 1;
+
+    console.log(mesDieta);
+
 
     let i=0;
 

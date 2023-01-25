@@ -30,6 +30,9 @@ var dietasExentas=0;
 var dietasSujetas=0;
 var dietasBruto=0;
 
+var mesINFORME=0;
+var textoAlmacenado="";
+
 
 window.onload=function(){
 
@@ -49,8 +52,17 @@ window.onload=function(){
 
     document.getElementById("btnMemoProg").addEventListener("click",memorizarHoras);
 
+    document.getElementById("linkCopiar").addEventListener("click",copiaProgAnterior);
+
     //UIkit.modal(document.getElementById("advertencia")).show();
 
+
+}
+
+function copiaProgAnterior(){
+
+    document.getElementById("progra").value="";
+    document.getElementById("progra").value=textoAlmacenado;
 
 }
 
@@ -62,7 +74,7 @@ function memorizarHoras(){
 
     datosMemorizar.prograMEM=prograMemorizar;
 
-    console.log(datosMemorizar.prograMEM);
+    //console.log(datosMemorizar.prograMEM);
 
     doPost(datosMemorizar);
 
@@ -133,6 +145,18 @@ function volverPreparacion(eve){
 
     document.getElementById("divPreparacion").style.display="block";
     document.getElementById("divResultados").style.display="none";
+
+    document.getElementById("divSeccionEsconder").style.display="block";
+
+    document.getElementById("tituloInicial").innerHTML="Preparacion:";
+
+    document.getElementById("btnMemoProg").style.display="block";
+    document.getElementById("lblProg").innerHTML="Copia aqui Programacion Publicada (Horas Block PROGRAMADAS)";
+    document.getElementById("progra").value="";
+    document.getElementById("btnEnviar").style.display="none";
+    document.getElementById("linkCopiar").style.display="none";
+
+    copiaProgAnterior();
 
     console.clear();
 
@@ -390,7 +414,9 @@ function crearResumen(){
     divResumen.classList.add("uk-card-primary");
     divResumen.classList.add("uk-inveres");
 
-    divResumen.innerHTML='<h3 class="uk-card-title">Resumen</h3>';
+    if (mesINFORME==0) mesINFORME="No Especificado";
+
+    divResumen.innerHTML='<h3 class="uk-card-title">Resumen mes: ' + mesINFORME + '</h3>';
     divResumen.appendChild(pImaginarias);
     divResumen.appendChild(pVS);
     divResumen.appendChild(pPerfil);
@@ -412,6 +438,23 @@ function crearResumen(){
 
 }
 
+function listoParaInforme(){
+
+    //ocultar elementos innecesarios:
+
+    document.getElementById("divSeccionEsconder").style.display="none";
+
+    document.getElementById("tituloInicial").innerHTML="Finalizacion:";
+
+    document.getElementById("btnMemoProg").style.display="none";
+    document.getElementById("lblProg").innerHTML="Copia aqui Programacion <strong>VOLADA</strong> (Horas Block Reales)";
+    textoAlmacenado=document.getElementById("progra").value;
+    document.getElementById("progra").value="";
+    document.getElementById("btnEnviar").style.display="block";
+    document.getElementById("linkCopiar").style.display="inline";
+
+}
+
 function presentaResultados(unArchivoJson){
 
     let PROGRA=JSON.parse(unArchivoJson);
@@ -426,9 +469,12 @@ function presentaResultados(unArchivoJson){
 
     }else if(PROGRA.tipo=="MEM"){
 
-        console.log(PROGRA);
         alert (PROGRA.numVuelosMemorizados + " Vuelos programados Memorizados.");
+
+        listoParaInforme();
+
         return;
+
     }
 
     document.getElementById("divPreparacion").style.display="none";
@@ -633,7 +679,6 @@ function escribeTierra(linea){
 }
 
 function escribeSA(linea){
-    console.log(linea);
 
     unDiv=document.createElement("div");
     unDiv.classList.add("servicioSA");
@@ -668,21 +713,23 @@ function escribeDieta(linea){
 
     const mesInforme=linea.mesDelInforme;
 
-    console.log("mes del informe: " + mesInforme);
+    mesINFORME=mesInforme;
+
+    //console.log("mes del informe: " + mesInforme);
 
     let ddieta=linea.arrDietas[0].diaDieta.date;
 
-    console.log("dia dieta: " + ddieta);
-    console.log(ddieta.replace(" ","T"));
+    //console.log("dia dieta: " + ddieta);
+    //console.log(ddieta.replace(" ","T"));
 
     const diaDieta=new Date(ddieta.replace(" ","T"));
 
-    console.log("Objeto diaDieta: ");
-    console.log(diaDieta);
+    //console.log("Objeto diaDieta: ");
+    //console.log(diaDieta);
 
     const mesDieta=diaDieta.getMonth() + 1;
 
-    console.log(mesDieta);
+    //console.log(mesDieta);
 
 
     let i=0;

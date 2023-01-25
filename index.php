@@ -60,83 +60,93 @@ function checkSession(){
 
 <div id="divPreparacion">
 
+<h1 id="tituloInicial">Preparacion:</h1>
 
 <form action="receptor.php" name="configurador" id="formConfigurador" method="post" autocomplete="on"  >
 
-<label for="nivel">Nivel Salarial</label>
-<select name="nivel" id="nivel" required>
-<option value="">Selecciona Nivel</option>
-    <?php
-    $algo= new NivelSalarial("",$false);
-    echo $algo->getSelectNiveles();
-    ?>
-</select>
+<div id="divSeccionEsconder">
+
+    <label for="nivel">Nivel Salarial</label>
+    <select name="nivel" id="nivel" required>
+    <option value="">Selecciona Nivel</option>
+        <?php
+        $algo= new NivelSalarial("",$false);
+        echo $algo->getSelectNiveles();
+        ?>
+    </select>
 
 
 
-<label for="dietas">Dietas</label>
-<select name="dietas" id="dietas">
-<option value="PILOTO1">PILOTO1</option>
-<option selected="selected" value="PILOTO2">PILOTO2</option>
-</select>
+    <label for="dietas">Dietas</label>
+    <select name="dietas" id="dietas">
+    <option value="PILOTO1">PILOTO1</option>
+    <option selected="selected" value="PILOTO2">PILOTO2</option>
+    </select>
 
 
 
-<label for="base">Base</label>
-<select name="base" id="base">
-<option value="PMI">PMI</option>
-<option selected="selected" value="MAD">MAD</option>
-<option value="BCN">BCN</option>
-<option value="AGP">AGP</option>
-<option value="TFN">TFN</option>
-<option value="LPA">LPA</option>
-</select>
+    <label for="base">Base</label>
+    <select name="base" id="base">
+    <option value="PMI">PMI</option>
+    <option selected="selected" value="MAD">MAD</option>
+    <option value="BCN">BCN</option>
+    <option value="AGP">AGP</option>
+    <option value="TFN">TFN</option>
+    <option value="LPA">LPA</option>
+    </select>
 
 
 
-<label for="flota">Flota</label>
-<select name="flota" id="flota">
-<option value="A330">A330</option>
-<option selected="selected" value="B787">B787</option>
-<option value="B737">B737</option>
-<option value="OTHR">OTHR</option>
-</select>
+    <label for="flota">Flota</label>
+    <select name="flota" id="flota">
+    <option value="A330">A330</option>
+    <option selected="selected" value="B787">B787</option>
+    <option value="B737">B737</option>
+    <option value="OTHR">OTHR</option>
+    </select>
 
 
-<label for="dias_cobro">Dias cobro</label>
-<input type="number" step="any" min="1" max="30" name="dias_cobro" id="dias_cobro" value="30" required> </td>
+    <label for="dias_cobro">Dias cobro</label>
+    <input type="number" step="any" min="1" max="30" name="dias_cobro" id="dias_cobro" value="30" required> </td>
 
-<label for="porcentaje_reduccion">Porcentaje Reduccion</label>
-<input type="number" step="any" min="0" max="100" name="porcentaje_reduccion" id="porcentaje_reduccion" value="100" required> </td>
+    <label for="porcentaje_reduccion">Porcentaje Reduccion</label>
+    <input type="number" step="any" min="0" max="100" name="porcentaje_reduccion" id="porcentaje_reduccion" value="100" required> </td>
 
-<p>
+    <p>
 
-<input type="checkbox" id="tablas_antiguas" name="tablas_antiguas" value="true">
-<label id="lbl_tablas" for="tablas_antiguas">Calculos anteriores a 2022</label>
+    <input type="checkbox" id="tablas_antiguas" name="tablas_antiguas" value="true">
+    <label id="lbl_tablas" for="tablas_antiguas">Calculos anteriores a 2022</label>
 
-</p>
+    </p>
 
 
 
-<label for="tiempo_firma">Tiempo Firma</label>
-<input type="number" min="1" max="120" name="tiempo_firma" id="tiempo_firma" value="90" required> </td>
+    <label for="tiempo_firma">Tiempo Firma</label>
+    <input type="number" min="1" max="120" name="tiempo_firma" id="tiempo_firma" value="90" required> </td>
 
-<label for="tiempo_desfirma">Tiempo DesFirma</label>
-<input type="number" min="1" max="120" name="tiempo_desfirma" id="tiempo_desfirma" value="30" required> </td>
+    <label for="tiempo_desfirma">Tiempo DesFirma</label>
+    <input type="number" min="1" max="120" name="tiempo_desfirma" id="tiempo_desfirma" value="30" required> </td>
 
-<label for="aclimatado">Apt Aclimatado (Se usa para el calculo de la act Extra en la primera linea de la programacion.)
-</label>
-<input type="text" maxlength="3" name="aclimatado" id="aclimatado" value="MAD" required> </td>
+    <label for="aclimatado">Apt Aclimatado (Se usa para el calculo de la act Extra en la primera linea de la programacion.)
+    </label>
+    <input type="text" maxlength="3" name="aclimatado" id="aclimatado" value="MAD" required> </td>
 
-<label for="progra">Copia aqui tu Programacion</label>
+</div>
+
+<div>
+<label id="lblProg" for="progra">Copia aqui Programacion Publicada (Horas Block PROGRAMADAS)</label>
+<a id="linkCopiar" href="#" style="display: none;">Copiar Anterior</a>
 <textarea rows="40" cols="100" name="progra" id="progra"></textarea>
 
 
-<input type="submit" id="btnEnviar" class="boton" name="enviando" value="Generar Informe">
+<input type="submit" id="btnEnviar" class="boton" style="display: none;" name="enviando" value="2.Generar Informe">
 
 </form>
-<button id="btnMemoProg" class="boton" name="btnMemoProg">Memorizar Horas Programadas</button>
 </div>
+<button id="btnMemoProg" class="boton" name="btnMemoProg">1.Introducir datos</button>
+
+</div>
+
 
 <div id="divResultados">
 

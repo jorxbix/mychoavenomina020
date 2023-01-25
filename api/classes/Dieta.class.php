@@ -113,8 +113,7 @@ class Dieta extends Conexion{
 		$horaEntradaHotel->setTimezone(new DateTimeZone($time_zone));
 
 		$hora_EntradaHotel = (int) $horaEntradaHotel->format("H");
-		$dia_EntradaHotel = (int) $horaEntradaHotel->format("D");
-
+		$dia_EntradaHotel = (int) $horaEntradaHotel->format("d");
 
 		$horaLLegada->setTimezone(new DateTimeZone($time_zone));
 
@@ -131,9 +130,16 @@ class Dieta extends Conexion{
 			 * 23:00 y las 07:00, SON HORAS LOCALES considerando BLOCK ON más 60 minutos como entrada en el hotel
 			 */
 
-			if ($aptoLLegada->pais!="Spain") return "Disponibilidad hotel fuera ESP";
+			//if($dia_EntradaHotel>$dia) return "EntradaHotel: + 1dia";
+			//si el vuelo llega pasado el dia de la dieta no va a ser de pernocta
+
+			// echo "dia_EntradaHotel=$dia_EntradaHotel , dia de la dieta= $dia";
+			// exit;
+
+			if($dia_EntradaHotel>$dia) return false;
+			if($aptoLLegada->pais!="Spain") return "Disponibilidad hotel fuera ESP";
 			if($hora_EntradaHotel>=23 || $hora_EntradaHotel<=7) return "EntradaHotel: " . json_encode($horaEntradaHotel);
-			if($dia_EntradaHotel>$dia) return "EntradaHotel: + 1dia";
+
 
 
 		//EL SERVICIO EMPIEZA FUERA DE BASE Y ACABA EN LA BASE (vueltas)

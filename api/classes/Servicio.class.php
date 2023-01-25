@@ -235,7 +235,8 @@ class Servicio{
 
 			$this->arrDietas[0]->arrDatosDieta['bruto']=round($this->arrDietas[0]->arrDatosDieta['bruto']*0.75,2);
 
-			$this->arrDietas[0]->arrDatosDieta['exento']=round($this->arrDietas[0]->arrDatosDieta['exento']*0.75,2);
+			//en la dieta larga reducida no se reduce el importe exento
+			//$this->arrDietas[0]->arrDatosDieta['exento']=round($this->arrDietas[0]->arrDatosDieta['exento']*0.75,2);
 
 			$this->arrDietas[0]->codigo=$this->arrDietas[0]->codigo . "_redu 3/4";
 
@@ -377,7 +378,7 @@ class Servicio{
 
 		$PERNOCTA=true;
 
-		$INFO=$INFO . "DIETA TIERRA";
+		$INFO=$INFO . "DIETA TIERRA ";
 
 		$dieta="D";
 
@@ -404,7 +405,7 @@ class Servicio{
 
 		$this->arrDietas[0]->misc=$INFO;
 
-		$this->arrDietas[0]->diaDieta=$this->fechaIni;
+		$this->arrDietas[0]->diaDieta=$this->fechaFin;
 
 	}
 
@@ -509,9 +510,14 @@ class Servicio{
 
 		$this->importeActividadNoc=($horas + $minsDecimal) * $impNoc;
 
-		Servicio::$totalImporteActNoc=Servicio::$totalImporteActNoc + $this->importeActividadNoc;
+		//primero miramos si el vuelo forma parte del calculo de este mes para actualizar totales;
+		if ($this->fechaFirma->format('n')==$_SESSION['mesInforme'] && $_SESSION['mesInforme']!=0){
 
-		$this->contadorImpNoc=Servicio::$totalImporteActNoc;
+			Servicio::$totalImporteActNoc=Servicio::$totalImporteActNoc + $this->importeActividadNoc;
+
+			$this->contadorImpNoc=Servicio::$totalImporteActNoc;
+
+		}
 
 		//ahora calculo el importe de la actividad ex
 
@@ -523,11 +529,14 @@ class Servicio{
 
 		$this->importeActividadEx=($horas + $minsDecimal) * $impEx;
 
-		Servicio::$totalImporteActEx=Servicio::$totalImporteActEx + $this->importeActividadEx;
+		//primero miramos si el vuelo forma parte del calculo de este mes para actualizar totales;
+		if ($this->fechaFirma->format('n')==$_SESSION['mesInforme'] && $_SESSION['mesInforme']!=0){
 
-		$this->contadorImpEx=Servicio::$totalImporteActEx;
+			Servicio::$totalImporteActEx=Servicio::$totalImporteActEx + $this->importeActividadEx;
 
+			$this->contadorImpEx=Servicio::$totalImporteActEx;
 
+		}
 
 	}
 

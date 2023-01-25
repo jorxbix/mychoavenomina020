@@ -40,6 +40,7 @@ function checkSession(){
     <script src="js/uikit-icons.min.js"></script>
 
     <title>Home MyChoaveNomina</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 </head>
 <body>
 
@@ -134,6 +135,7 @@ function checkSession(){
 </div>
 
 <div>
+    <p id="pResumen" style="display: none;"></p>
 <label id="lblProg" for="progra">Copia aqui Programacion Publicada (Horas Block PROGRAMADAS)</label>
 <a id="linkCopiar" href="#" style="display: none;">Copiar Anterior</a>
 <textarea rows="40" cols="100" name="progra" id="progra"></textarea>
@@ -143,7 +145,9 @@ function checkSession(){
 
 </form>
 </div>
+
 <button id="btnMemoProg" class="boton" name="btnMemoProg">1.Introducir datos</button>
+
 
 </div>
 

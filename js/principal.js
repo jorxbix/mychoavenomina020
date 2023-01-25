@@ -156,6 +156,8 @@ function volverPreparacion(eve){
     document.getElementById("btnEnviar").style.display="none";
     document.getElementById("linkCopiar").style.display="none";
 
+    document.getElementById("pResumen").style.display="none";
+
     copiaProgAnterior();
 
     console.clear();
@@ -438,9 +440,25 @@ function crearResumen(){
 
 }
 
-function listoParaInforme(){
+function listoParaInforme(PROGRA){
 
+    document.getElementById("pResumen").innerHTML="";
     //ocultar elementos innecesarios:
+
+    let cadena="<p>VUELOS MEMORIZADOS: " + PROGRA.numVuelosMemorizados + "</p><br>";
+
+    for (let linea of PROGRA.vuelos){
+
+        cadena="<p>" + cadena + linea.aptIni  + linea.aptFin + " " +
+        linea.fechaIniProg.date.slice(0,-10) + "</p>";
+
+    }
+
+
+    document.getElementById("pResumen").innerHTML="<strong>" + cadena + "<br></strong>";
+    document.getElementById("pResumen").style.color="darkgreen";
+    document.getElementById("pResumen").style.display="block";
+
 
     document.getElementById("divSeccionEsconder").style.display="none";
 
@@ -471,7 +489,7 @@ function presentaResultados(unArchivoJson){
 
         alert (PROGRA.numVuelosMemorizados + " Vuelos programados Memorizados.");
 
-        listoParaInforme();
+        listoParaInforme(PROGRA);
 
         return;
 

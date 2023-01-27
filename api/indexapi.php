@@ -392,6 +392,22 @@ function restProcesaProg($datos){
 
 	}
 
+
+	//EN ESTA PARTE VAMOS A BORRAR TODOS LOS SERVICIOS ESTUPIDOS QUE
+	//EL SGT GENERA Y QUE NO SIRVEN PARA NADA
+	$numServicios=count($contenedor);
+
+	for($i=0 ; $i<$numServicios ; $i++){
+
+		if(isset($contenedor[$i]->destruir) && $contenedor[$i]->destruir==true){
+
+			array_splice($contenedor, $i, 1);
+			//cada vez que quito un elemento tengo que disminuir el numero total de elementos
+			$numServicios--;
+
+		}
+	}
+
 	echo json_encode($contenedor);
 
 	exit;

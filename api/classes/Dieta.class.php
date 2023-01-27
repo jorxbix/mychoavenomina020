@@ -6,6 +6,8 @@ class Dieta extends Conexion{
 	public $arrDatosDieta;
 	public $diaDieta;
 
+	public static $pernoctaAplicada=false;
+
 /**Funcion constructora, devuelve false si el codigo de dieta no existe
  * @param $codigo son las siglas enmayuscula de la dieta a crear
  * @param $tipoPiloto puede ser PILOTO1 o PILOTO2
@@ -102,7 +104,7 @@ class Dieta extends Conexion{
 		//obtengo la hora blockOn del ultimo vuelo
 		$horaEntradaHotel=clone $ultimoVuelo->fechaFin;
 
-		//el convenio habla de BLOCKON per la empresa esta usando la hora de desfirma
+		//el convenio habla de BLOCKON +1h como entrada hotel
 		// $horaLLegada=clone $ultimoVuelo->fechaFin;
 		$horaLLegada=clone $servicio->fechaDesfirma;
 
@@ -124,19 +126,34 @@ class Dieta extends Conexion{
 
 		//EL SERVICIO TERMINA EN UN SITIO QUE NO ES LA BASE ...
 		if($servicio->aptFin!=$BASE){
-			/**
-			 * En el día de que se trate, haya disponibilidad de hotel en el territorio nacional
-			 * fuera del municipio de la base operativa y del municipio de residencia entre las
-			 * 23:00 y las 07:00, SON HORAS LOCALES considerando BLOCK ON más 60 minutos como entrada en el hotel
-			 */
 
-			//if($dia_EntradaHotel>$dia) return "EntradaHotel: + 1dia";
-			//si el vuelo llega pasado el dia de la dieta no va a ser de pernocta
+			if($dia_EntradaHotel>$dia) {
 
-			// echo "dia_EntradaHotel=$dia_EntradaHotel , dia de la dieta= $dia";
-			// exit;
+				if($hora_EntradaHotel<7){
 
-			if($dia_EntradaHotel>$dia) return false;
+					//guardo el vuelo de ida en el que se aplico la pernocta
+					Dieta::$pernoctaAplicada=$servicio->aptIni . $servicio->aptFin;
+
+					return "Pernocta aplicada a la ida (dia diferente).";
+
+				}else{
+
+					return false;
+
+				}
+
+			}
+
+			if($dia_EntradaHotel==$dia) {
+
+					//guardo el vuelo de ida en el que se aplico la pernocta
+					Dieta::$pernoctaAplicada=$servicio->aptIni . $servicio->aptFin;
+
+					return "Pernocta aplicada a la ida (mismo dia).";
+
+			}
+
+
 			if($aptoLLegada->pais!="Spain") return "Disponibilidad hotel fuera ESP";
 			if($hora_EntradaHotel>=23 || $hora_EntradaHotel<=7) return "EntradaHotel: " . json_encode($horaEntradaHotel);
 
@@ -144,6 +161,30 @@ class Dieta extends Conexion{
 
 		//EL SERVICIO EMPIEZA FUERA DE BASE Y ACABA EN LA BASE (vueltas)
 		}else if($servicio->aptIni!=$BASE && $servicio->aptFin==$BASE){
+
+			/**
+			 * 1.1 Pernocta:
+			 * – Disponibilidad de hotel fuera del municipio de la base operativa y del municipio de residencia entre las 23:00 y las 07:00, considerando BLOCK ON más 60 minutos como entrada en el hotel.
+			 * – y/o salida de hotel a cualquier hora con llegada a base operativa posterior o igual a las 05:00 (BLOCKS ON).
+			 * -La pernocta se aplicará al primer día.
+			 */
+			 //LA PERNOCTA SE APLICARA EL PRIMER DIA ES UN SOBERANO QUEBRADERO DE CABEZA
+			 //por eso he creado la variable ststic 'pernoctaAplicada'
+
+			//si ya existe la variable compruebo que no sea la vuelta con la pernocta aplicada
+			if(Dieta::$pernoctaAplicada){
+
+				if(($servicio->aptFin . $servicio->aptIni) == Dieta::$pernoctaAplicada){
+
+					$servicio->misc=$servicio->misc . Dieta::$pernoctaAplicada . "-> No es Pernocta pq ya se aplico... ";
+
+					Dieta::$pernoctaAplicada==false;
+
+					return false;
+
+				}
+
+			}
 			/**
 			 * y/o se produzca una salida del hotel a cualquier hora
 			 * con llegada a base operativa igual o posterior a las 05:00 (BLOCKS ON).

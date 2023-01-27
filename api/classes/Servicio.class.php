@@ -16,6 +16,8 @@ class Servicio{
 	public static $totalImporteActNoc=0;
 	public static $totalImporteActEx=0;
 
+	public static $diaUltimaDieta=0;
+
 
 	//tipo de servicio
 	public $tipo;
@@ -85,6 +87,7 @@ class Servicio{
 	//esta propiedad se va a usar para determinar los totales del calculo
 	public $mesDelInforme=0;
 	public $fantasma=false;
+	public $destruir=false;
 
 /**Funcion constructora, devuelve false si hay algun error al montar el servicio
  * @param $fila es el array con todos los datos del servicio
@@ -165,19 +168,25 @@ class Servicio{
 
 		$DIETA_LARGA_REDUCIDA=false;
 
+		$OMITIR_PERNOCTA_VUELTA=false;
+
 		//veamos cuantas dietas corresponden a este servicio:
 
 		$arrDIAS_DIETA=Dieta::dameDiasDieta($this);
 
-		$INFO=$INFO . "DIETAS DIA: $arrDIAS_DIETA[0] // ";
+		$INFO=$INFO . " arrDias: " . json_encode($arrDIAS_DIETA);
+
+		$INFO=$INFO . " DIETAS DIA: $arrDIAS_DIETA[0] // ";
 
 		//**************DIETA DE SALIDA DIETA 1*************** */
 
-		if (!isset($arrDIAS_DIETA[0])){
+		//si no hay dia para dieta aborto
+		if (!isset($arrDIAS_DIETA[0])) return;
 
-			return;
+		//si la dieta ya esta dada aborto
+		if ($arrDIAS_DIETA[0]==Servicio::$diaUltimaDieta) return;
 
-		}
+		Servicio::$diaUltimaDieta=$arrDIAS_DIETA[0];
 
 		$dieta="D";
 
@@ -202,9 +211,11 @@ class Servicio{
 
 		if(!$BLOCK_OFF_ENELDIA){
 
+			$OMITIR_PERNOCTA_VUELTA=true;
+
 			$dieta=$dieta . "T";
 
-			$INFO=$INFO . "Sin BlockOff en el dia. " . " // ";
+			$INFO=$INFO . "Sin BlockOff en el dia. " . Dieta::$pernoctaAplicada . " // ";
 
 		}else{
 
@@ -222,7 +233,7 @@ class Servicio{
 
 				$dieta=$dieta . "C";
 
-				if($this->aptFin==$BASE) $INFO=$INFO . "LLegada anterior a las 05:00LT.  // ";
+				if($this->aptFin==$BASE) $INFO=$INFO . "No Pernocta (puede que ya se aplicara a la ida)  // ";
 
 			}
 
@@ -238,7 +249,7 @@ class Servicio{
 			//en la dieta larga reducida no se reduce el importe exento
 			//$this->arrDietas[0]->arrDatosDieta['exento']=round($this->arrDietas[0]->arrDatosDieta['exento']*0.75,2);
 
-			$this->arrDietas[0]->codigo=$this->arrDietas[0]->codigo . "_redu 3/4";
+			$this->arrDietas[0]->codigo=$this->arrDietas[0]->codigo . "_2 (redu 3/4)";
 
 		}
 
@@ -251,11 +262,12 @@ class Servicio{
 		//**************DIETA DE LLEGADA SOLO SI SE LLEGA UN DIA DIFERENTE*************** */
 		//dieta2:
 
-		if (!isset($arrDIAS_DIETA[1])){
+		if (!isset($arrDIAS_DIETA[1])) return;
 
-			return;
+		//si la dieta ya esta dada aborto
+		if ($arrDIAS_DIETA[1]==Servicio::$diaUltimaDieta) return;
 
-		}
+		Servicio::$diaUltimaDieta=$arrDIAS_DIETA[1];
 
 		//reseteo de variables para el segundo calculo
 
@@ -335,7 +347,7 @@ class Servicio{
 
 			$this->arrDietas[1]->arrDatosDieta['exento']=round($this->arrDietas[1]->arrDatosDieta['exento']*0.75,2);
 
-			$this->arrDietas[1]->codigo=$this->arrDietas[1]->codigo . "_redu 3/4";
+			$this->arrDietas[1]->codigo=$this->arrDietas[1]->codigo . "_2 (redu 3/4)";
 
 		}
 
@@ -344,6 +356,9 @@ class Servicio{
 		$this->arrDietas[1]->diaDieta=$this->fechaDesfirma;
 
 		Servicio::$dietaPendiente=clone $this;
+
+		if($OMITIR_PERNOCTA_VUELTA) Dieta::$pernoctaAplicada=false;
+		$OMITIR_PERNOCTA_VUELTA=false;
 
 		//ahora me tengo que cargar la segunda dieta de este servicio puesto que se va
 		//a presentar en un dia diferente.
@@ -361,6 +376,15 @@ class Servicio{
 		global $sonServTierra;
 
 		if(!in_array($this->tipo,$sonServTierra)) return;
+		if(Servicio::$diaUltimaDieta==$this->fechaFin->format("d")){
+
+			$this->misc="Dieta ya asignada";
+			$this->fantasma=true;
+			$this->destruir=true;
+			return;
+
+
+		}
 
 		//los SA y los FR en base no se pagan
 		$BASE=$this->piloto->base;
@@ -385,7 +409,7 @@ class Servicio{
 		//determinar distancia de la dieta
 		$DISTANCIA= Dieta::dameDistanciaApto($this->aptFin);
 
-		$INFO=$INFO  . $DISTANCIA . " // ";
+		$INFO=$INFO  . $DISTANCIA . " // dia ultima dieta: " . Servicio::$diaUltimaDieta . " // ";
 
 		if($DISTANCIA=="NACIONAL") $dieta=$dieta . "N";
 		if($DISTANCIA=="INTERNACIONAL") $dieta=$dieta . "I";
@@ -406,6 +430,10 @@ class Servicio{
 		$this->arrDietas[0]->misc=$INFO;
 
 		$this->arrDietas[0]->diaDieta=$this->fechaFin;
+
+		Servicio::$diaUltimaDieta=$this->fechaFin->format("d");
+
+		$INFO=$INFO  . " dia esta dieta: " . $this->fechaFin->format("d") . " // ";
 
 	}
 

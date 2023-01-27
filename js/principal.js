@@ -487,7 +487,7 @@ function presentaResultados(unArchivoJson){
 
     }else if(PROGRA.tipo=="MEM"){
 
-        alert (PROGRA.numVuelosMemorizados + " Vuelos programados Memorizados.");
+        //alert (PROGRA.numVuelosMemorizados + " Vuelos programados Memorizados.");
 
         listoParaInforme(PROGRA);
 

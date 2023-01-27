@@ -599,19 +599,19 @@ function escribeVuelo(linea){
 
         let unH4= document.createElement("h4");
 
-        unH4.innerHTML= '<p>Vuelo: </p><p>' +
-        convertirFechaHora(linea.arrVuelos[i].fechaIni.date.substr(0,16)) + '</p><p>' +
+        unH4.innerHTML= '<p>BlockOff: ' +
+        convertirFechaHora(linea.arrVuelos[i].fechaIni.date.substr(0,16)) + '<span class="uk-text-danger">Z</span></p><p>BlockOn: ' +
         convertirFechaHora(linea.arrVuelos[i].fechaFin.date.substr(0,16)) +
-        '</p><p> (Horas Block: ' + convertirCadenaHsMs(linea.arrVuelos[i].tiempoBlock.h, linea.arrVuelos[i].tiempoBlock.i) +
-        ') AcumuladoBlock: ' + convertirCadenaHsMs(linea.arrVuelos[i].contadorHblock, linea.arrVuelos[i].contadorMblock) +
+        '<span class="uk-text-danger">Z</span></p><p>Horas Block: ' + convertirCadenaHsMs(linea.arrVuelos[i].tiempoBlock.h, linea.arrVuelos[i].tiempoBlock.i) +
+        ', AcumuladoBlock: ' + convertirCadenaHsMs(linea.arrVuelos[i].contadorHblock, linea.arrVuelos[i].contadorMblock) +
         '</p>';
 
         //si el perfil es diferente de false es pq existe en bbdd
         if(linea.arrVuelos[i].perfil!=false){
 
             unH4.innerHTML=unH4.innerHTML +
-            '<p>(Horas Perfil: ' + linea.arrVuelos[i].perfil.tiempo_perfil.substr(0,5) +
-            ') AcumuladoPerfil: ' + convertirCadenaHsMs(linea.arrVuelos[i].contadorHperfil, linea.arrVuelos[i].contadorMperfil) +
+            '<p>Horas Perfil: ' + linea.arrVuelos[i].perfil.tiempo_perfil.substr(0,5) +
+            ', AcumuladoPerfil: ' + convertirCadenaHsMs(linea.arrVuelos[i].contadorHperfil, linea.arrVuelos[i].contadorMperfil) +
             '</p>';
 
 
@@ -862,19 +862,38 @@ function escribeContenedorServicio(linea){
 
 
     unDiv.innerHTML=unDiv.innerHTML+'<h4><p>' +
-    'Ini Act: ' + convertirFechaHora(linea.fechaFirma.date.substr(0,16)) + '</p><p>' +
-    'Fin Act: ' + convertirFechaHora(linea.fechaDesfirma.date.substr(0,16)) +
-    '</p><p> Horas Actividad: ' + convertirCadenaHsMs(linea.tiempoActividad.h, linea.tiempoActividad.i) +
-    ', Accu: ' + convertirCadenaHsMs(linea.contadorHact, linea.contadorMact) +
-    '</p><p> Horas Act Noc: ' + convertirCadenaHsMs(linea.tiempoActividadNocturna.h, linea.tiempoActividadNocturna.i) +
-    ' (' + parseFloat(linea.importeActividadNoc).toFixed(2) + '€)' +
-    ', Accu Noc: ' + convertirCadenaHsMs(linea.contadorHactNoc, linea.contadorMactNoc) +
-    ' (' + parseFloat(linea.contadorImpNoc).toFixed(2) + '€)' +
-    '</p><p> Horas Act Ext: ' + convertirCadenaHsMs(linea.tiempoActividadEx.h, linea.tiempoActividadEx.i) +
-    ' (' + parseFloat(linea.importeActividadEx).toFixed(2) + '€)' +
-    ', Accu Ext: ' + convertirCadenaHsMs(linea.contadorHactEx, linea.contadorMactEx) +
-    ' (' + parseFloat(linea.contadorImpEx).toFixed(2) + '€)' +
-    '</h4>';
+    'Presentacion: ' + convertirFechaHora(linea.fechaFirma.date.substr(0,16)) + '<span class="uk-text-danger">Z</span></p><p>' +
+    'Fin Actividad: ' + convertirFechaHora(linea.fechaDesfirma.date.substr(0,16)) + '<span class="uk-text-danger">Z</span></p></h4>';
+
+
+    // '</p><p> Horas Actividad: ' + convertirCadenaHsMs(linea.tiempoActividad.h, linea.tiempoActividad.i) +
+    // ', Accu: ' + convertirCadenaHsMs(linea.contadorHact, linea.contadorMact) +
+    // '</p><p> Horas Act Noc: ' + convertirCadenaHsMs(linea.tiempoActividadNocturna.h, linea.tiempoActividadNocturna.i) +
+    // ' (' + parseFloat(linea.importeActividadNoc).toFixed(2) + '€)' +
+    // ', Accu Noc: ' + convertirCadenaHsMs(linea.contadorHactNoc, linea.contadorMactNoc) +
+    // ' (' + parseFloat(linea.contadorImpNoc).toFixed(2) + '€)' +
+    // '</p><p> Horas Act Ext: ' + convertirCadenaHsMs(linea.tiempoActividadEx.h, linea.tiempoActividadEx.i) +
+    // ' (' + parseFloat(linea.importeActividadEx).toFixed(2) + '€)' +
+    // ', Accu Ext: ' + convertirCadenaHsMs(linea.contadorHactEx, linea.contadorMactEx) +
+    // ' (' + parseFloat(linea.contadorImpEx).toFixed(2) + '€)' +
+    // '</h4>';
+
+    unDiv.innerHTML=unDiv.innerHTML +
+
+    '<h4><table class="tabla_act"><tr><th>ACTIVIDAD</th><th>ACTUAL</th><th>ACUMULADO</th></tr><tr><th>TOTAL</th>' +
+      '<td>' + convertirCadenaHsMs(linea.tiempoActividad.h, linea.tiempoActividad.i) + '</td>' +
+      '<td>' + convertirCadenaHsMs(linea.contadorHact, linea.contadorMact) + '</td>' +
+    '</tr><tr><th>NOCTURNA</th>' +
+      '<td>' + convertirCadenaHsMs(linea.tiempoActividadNocturna.h, linea.tiempoActividadNocturna.i) +
+      ' (' + parseFloat(linea.importeActividadNoc).toFixed(2) + '€)' + '</td>' +
+      '<td>' + convertirCadenaHsMs(linea.contadorHactNoc, linea.contadorMactNoc) +
+      ' (' + parseFloat(linea.contadorImpNoc).toFixed(2) + '€)' + '</td>' +
+    '</tr><tr><th>EXTRA</th>' +
+      '<td>' + convertirCadenaHsMs(linea.tiempoActividadEx.h, linea.tiempoActividadEx.i) +
+      ' (' + parseFloat(linea.importeActividadEx).toFixed(2) + '€)' + '</td>' +
+      '<td>' + convertirCadenaHsMs(linea.contadorHactEx, linea.contadorMactEx) +
+      ' (' + parseFloat(linea.contadorImpEx).toFixed(2) + '€)' + '</td>' +
+    '</tr></table></h4>';
 
     horasActividad=convertirCadenaHsMs(linea.contadorHact, linea.contadorMact);
     horasActividadNocturna=convertirCadenaHsMs(linea.contadorHactNoc, linea.contadorMactNoc);

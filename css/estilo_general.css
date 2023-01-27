@@ -6,6 +6,23 @@
 body{
     color: rgb(86, 86, 3);
 }
+
+.tabla_act{
+
+    color: black;
+    border-collapse: collapse;
+
+}
+
+.tabla_act th, td {
+    padding: 4px;
+    text-align: left;
+  }
+
+.tabla_act th {
+    font-weight: lighter;
+  }
+
 select, input{
     border-radius: 5px;
     margin: 5px 5px 5px 5px;

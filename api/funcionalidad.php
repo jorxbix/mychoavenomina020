@@ -17,8 +17,9 @@ session_start();
 //he incluido las clases antes del sesision start pq estaba recibiendo un error
 //_PHP_Incomplete_Class_Name con la clasee HoraMemorizada almacenada en session
 
-$sonVuelos=["CO","CR","PM","PR","PS","VS"];
-$sonServTierra=["SR","OC","EN","XX","SA","FR"];
+$sonVuelos=["CO","PM","PR","PS","VS"];
+$sonServTierra=["SR","OC","EN","XX","SA","FR","CR"];
+$sonLibres=["LI","LN","LD","VA"];
 
 //09h para considerar dos actividades diferrentes
 $tiempoEntreServicios=new DateInterval("PT09H");

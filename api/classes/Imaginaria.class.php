@@ -27,6 +27,8 @@ class Imaginaria {
 	//cada imaginaria tiene que tener asociado un piloto
 	public $piloto;
 
+	public $misc="";
+
 
 	public function __construct($fila,$piloto){
 

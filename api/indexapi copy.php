@@ -246,8 +246,6 @@ function restProcesaProg($datos){
 	$miPiloto=new Piloto($datos->piloto);
 
 	$ultimoVueloProcesado=null;
-	$ultimoSueloProcesado=null;
-
 	$i=0;
 	$servicioPendiente=false;
 
@@ -323,7 +321,23 @@ function restProcesaProg($datos){
 		//2.NO ES UN SERVICIO DE VUELO (por lo tanto sera un servicio diferente, pues NOOOO)
 		}else{
 
-			//2.1 VAMOS A VER SI EL SERVICIOO ES UNA IMAGINARIA (la im es un servicio en si)
+			if($servicioPendiente){
+				//antes de guardar el servicio tenemos que hacer los calculos de actividad
+				$mismoServicio->calculaActividad();
+
+				array_push($contenedor,$mismoServicio);
+
+				if(Servicio::$dietaPendiente){
+
+					array_push($contenedor,dame_SA_dieta());
+
+				}
+
+				$servicioPendiente=false;
+
+			}
+
+			//VAMOS A VER SI EL SERVICIOO ES UNA IMAGINARIA
 			if($servicio->tipo=="IM"){
 
 				$miImaginaria=new Imaginaria($servicio,$miPiloto);
@@ -336,69 +350,19 @@ function restProcesaProg($datos){
 
 				}
 
-			//2.2 el servicio no es una imaginaria y puede contener varias lineas
 			}else{
 
-				$miSuelo=new Suelo($servicio,$miPiloto);
+				$miServicio=new Servicio($servicio,$miPiloto);
 
-				//2.2.1 el servicio es diferente
-				if(esServicioDiferente($ultimoSueloProcesado,$miSuelo)){
+				$miServicio->calculaActividad();
 
-					//el servicio es diferente y debemos cerrar el anterior
-					if($servicioPendiente){
-						//antes de guardar el servicio tenemos que hacer los calculos de actividad
-						$mismoServicio->calculaActividad();
+				array_push($contenedor,$miServicio);
 
-						array_push($contenedor,$mismoServicio);
+				if(Servicio::$dietaPendiente){
 
-						if(Servicio::$dietaPendiente){
-
-							array_push($contenedor,dame_SA_dieta());
-
-						}
-
-						$servicioPendiente=false;
-
-					}
-
-					//una vez guardaddo el servicio pendiente abro uno nuevo
-					//pongo el contador de suelos a cero
-					$i=0;
-					//creo el servicio que contendra el/los vuelos
-					$miServicio=new Servicio($servicio,$miPiloto);
-					//meto el suelo creado dentro del servicio
-					$miServicio->arrSuelos[$i]=$miSuelo;
-					//guardo el servicio por si hay q meter mas vuelos
-					$mismoServicio=$miServicio;
-					//augmento el contador de suelos
-					$i++;
-
-					// substituyo la propiedad misc para qu no coincida con ningun vuelo
-					$mismoServicio->misc="Suelo Unico,";
-
-					$servicioPendiente=true;
-
-				//2.2.2 suelo pertenece a un servicio ya creado
-				}else{
-
-					//meto el suelo creado dentro del servicio
-					$mismoServicio->arrSuelos[$i]=$miSuelo;
-
-					//augmento el contador de suelos
-					$i++;
-
-					// substituyo la propiedad misc para qu no coincida con ningun vuelo
-					$mismoServicio->misc="Multiples Vuelos,";
-					// actualizo el apto fin y la hora que termina el servicio con las del ultimo vuelo
-					$mismoServicio->aptFin=$miSuelo->aptFin;
-					$mismoServicio->fechaFin=$miSuelo->fechaFin;
-
-					$servicioPendiente=true;
+					array_push($contenedor,dame_SA_dieta());
 
 				}
-				//guardo los datos del ultimo vuelo procesado para compararlo
-				//en el siguinete loop
-				$ultimoSueloProcesado=$miSuelo;
 
 			}
 
@@ -479,17 +443,7 @@ function esServicioDiferente($vueloA,$vueloB){
 
 	//si es el primer vuelo que se procesa
 	//se va a crear un servicio nuevo
-
 	if($vueloA==null)return true;
-
-	global $sonLibres;
-	global $sonVuelos;
-	global $sonServTierra;
-
-	if(in_array($vueloA->tipo,$sonLibres)) return true;
-	if(in_array($vueloB->tipo,$sonLibres)) return true;
-	if(in_array($vueloA->tipo,$sonVuelos) && in_array($vueloB->tipo,$sonServTierra)) return true;
-	if(in_array($vueloB->tipo,$sonVuelos) && in_array($vueloA->tipo,$sonServTierra)) return true;
 
 	global $tiempoEntreServicios;
 

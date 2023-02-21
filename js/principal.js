@@ -26,6 +26,22 @@ var importeEx=0;
 var desglosePerfil="";
 
 var numeroDietas=0;
+
+var numeroDNC=0;
+var numeroDNP=0;
+var numeroDNT=0;
+
+var numeroDIC=0;
+var numeroDIP=0;
+var numeroDIT=0;
+
+var numeroDLC=0;
+var numeroDLC2=0;
+var numeroDLP=0;
+var numeroDLP2=0;
+var numeroDLT=0;
+var numeroDLT2=0;
+
 var dietasExentas=0;
 var dietasSujetas=0;
 var dietasBruto=0;
@@ -130,6 +146,22 @@ function volverPreparacion(eve){
     importeEx=0;
 
     numeroDietas=0;
+
+    numeroDNC=0;
+    numeroDNP=0;
+    numeroDNT=0;
+
+    numeroDIC=0;
+    numeroDIP=0;
+    numeroDIT=0;
+
+    numeroDLC=0;
+    numeroDLC2=0;
+    numeroDLP=0;
+    numeroDLP2=0;
+    numeroDLT=0;
+    numeroDLT2=0;
+
     dietasExentas=0;
     dietasSujetas=0;
     dietasBruto=0;
@@ -257,11 +289,16 @@ function procesaProg(cadenaProg){
  }
 
  //finalmente procesaremos todos los datos y juntaremos campos fecha y hora
+ let observaciones="";
 
  for (linea of arrProg){
 
+
+    observaciones=linea[0].slice(2,linea[0].length);
+
     //pillamos los dos primeros caractres
     linea[0]=linea[0].slice(0,2);
+
 
     if(linea[0]=="SA" || linea[0]=="RT"){
 
@@ -277,7 +314,7 @@ function procesaProg(cadenaProg){
 
     }
 
-    let observaciones="";
+
     contador=5;
 
     while(contador<linea.length){
@@ -367,6 +404,22 @@ function listenPost(eve){
 }
 
 function crearResumen(){
+
+    console.log(
+        "DNC " + numeroDNC + "\n" +
+        "DNP " + numeroDNP + "\n" +
+        "DNT " + numeroDNT + "\n" +
+        "DIC " + numeroDIC + "\n" +
+        "DIP " + numeroDIP + "\n" +
+        "DIT " + numeroDIT + "\n" +
+        "DLC " + numeroDLC + "\n" +
+        "DLP " + numeroDLP + "\n" +
+        "DLT " + numeroDLT + "\n" +
+        "DLC2 " + numeroDLC2 + "\n" +
+        "DLP2 " + numeroDLP2 + "\n" +
+        "DLT2 " + numeroDLT2 + "\n"
+
+    )
 
     //resumen imaginarias
     const pImaginarias= document.createElement("p");
@@ -513,7 +566,7 @@ function presentaResultados(unArchivoJson){
 
         }else if (arrServiciosTierra.includes(codigoServicio)){
 
-            escribeTierra(LINEA);
+            escribeTierra2(LINEA);
 
         }else if (arrServiciosLibre.includes(codigoServicio)){
 
@@ -685,14 +738,74 @@ function escribeTierra(linea){
 
     unDiv=document.createElement("div");
     unDiv.classList.add("servicioTierra");
-    unDiv.innerHTML="<h4>" + linea.tipo + "<p>" +
+    unDiv.innerHTML="<h4>" + linea.tipo + " " + linea.aptFin + "<p>" +
     convertirFechaHora(linea.fechaIni.date.substr(0,16)) + "</p><p>" +
     convertirFechaHora(linea.fechaFin.date.substr(0,16)) + "</p>" +
     '<p> Horas Actividad: ' + convertirCadenaHsMs(linea.tiempoActividad.h, linea.tiempoActividad.i) +
     ', Accu: ' + convertirCadenaHsMs(linea.contadorHact, linea.contadorMact) +
     "</p></h4>";
 
+    if(linea.arrDietas!=null){
+
+        let unDivDieta=escribeDieta(linea);
+
+        unDiv.appendChild(unDivDieta);
+
+    }
+
+
     document.getElementById("divResultados").appendChild(unDiv);
+
+}
+
+function escribeTierra2(linea){
+
+    let unContenedor=escribeContenedorServicio(linea);
+
+    let i=0;
+
+    for (let suelo of linea.arrSuelos){
+
+        let unDiv=document.createElement("div");
+        unDiv.classList.add("servicioTierra");
+
+        if(linea.arrSuelos[i].fantasma==true) unDiv.classList.add("fantasma");
+
+        unDiv.innerHTML=
+        '<ul uk-accordion>' +
+                '<li>' +
+                '<a class="uk-accordion-title" href="#">' +
+                '<h3>' + linea.arrSuelos[i].tipo + " " +
+                    linea.arrSuelos[i].aptIni + linea.arrSuelos[i].aptFin + ' (' +
+                    linea.arrSuelos[i].misc +
+                    ')</h3>' +
+                '</a>' +
+            '<div class="uk-accordion-content">' +
+                '<p>Info ' +
+                linea.arrSuelos[i].misc +
+                '</p>' +
+            '</div>' +
+                '</li>' +
+            '</ul>';
+
+        let unH4= document.createElement("h4");
+
+        unH4.innerHTML= '<p>Inicio: ' +
+        convertirFechaHora(linea.arrSuelos[i].fechaIni.date.substr(0,16)) + '<span class="uk-text-danger">Z</span></p><p>Final: ' +
+        convertirFechaHora(linea.arrSuelos[i].fechaFin.date.substr(0,16)) +
+        '<span class="uk-text-danger">Z</span></p><p>Transcurrido: ' + convertirCadenaHsMs(linea.arrSuelos[i].tiempoBlock.h, linea.arrSuelos[i].tiempoBlock.i) +
+        '</p>';
+
+        unDiv.appendChild(unH4);
+        unContenedor.appendChild(unDiv);
+
+        //augmento el contador para el siguinete vuelo
+        i++;
+
+    }
+
+
+    document.getElementById("divResultados").appendChild(unContenedor);
 
 }
 
@@ -733,22 +846,11 @@ function escribeDieta(linea){
 
     mesINFORME=mesInforme;
 
-    //console.log("mes del informe: " + mesInforme);
-
     let ddieta=linea.arrDietas[0].diaDieta.date;
-
-    //console.log("dia dieta: " + ddieta);
-    //console.log(ddieta.replace(" ","T"));
 
     const diaDieta=new Date(ddieta.replace(" ","T"));
 
-    //console.log("Objeto diaDieta: ");
-    //console.log(diaDieta);
-
     const mesDieta=diaDieta.getMonth() + 1;
-
-    //console.log(mesDieta);
-
 
     let i=0;
 
@@ -809,9 +911,60 @@ function escribeDieta(linea){
     dietasBruto=dietasBruto + parseFloat(linea.arrDietas[i].arrDatosDieta.bruto);
     dietasExentas=dietasExentas + parseFloat(linea.arrDietas[i].arrDatosDieta.exento);
     dietasSujetas=dietasSujetas + parseFloat((linea.arrDietas[i].arrDatosDieta.bruto - linea.arrDietas[i].arrDatosDieta.exento));
+
+    sumaParcialesDieta(linea.arrDietas[i].codigo);
+
     numeroDietas++;
 
     return unDivDieta;
+
+}
+
+function sumaParcialesDieta(cod_dieta){
+
+    switch (cod_dieta) {
+        case 'DNC':
+          numeroDNC++;
+          break;
+        case 'DNP':
+            numeroDNP++;
+            break;
+        case 'DNT':
+          numeroDNT++;
+          break;
+        case 'DIC':
+            numeroDIC++;
+            break;
+        case 'DIP':
+          numeroDIP++;
+          break;
+        case 'DIT':
+            numeroDIT++;
+            break;
+        case 'DLC':
+          numeroDLC++;
+          break;
+        case 'DLP':
+            numeroDLP++;
+            break;
+        case 'DLT':
+          numeroDLT++;
+          break;
+        case 'DLC_2 (redu 3/4)':
+          numeroDLC2++;
+          break;
+        case 'DLP_2 (redu 3/4)':
+            numeroDLP2++;
+            break;
+        case 'DLT_2 (redu 3/4)':
+          numeroDLT2++;
+          break;
+
+        default:
+          console.log("Esta dieta no existe " + cod_dieta);
+      }
+
+
 
 }
 
@@ -819,10 +972,10 @@ function escribeLibre(linea){
 
     unDiv=document.createElement("div");
     unDiv.classList.add("servicioLibre");
-    unDiv.innerHTML="<h4>"+linea.tipo+" "+
+    unDiv.innerHTML="<h3>"+linea.tipo+" "+
     convertirFechaHora(linea.fechaIni.date.substr(0,16)) + ' hasta: ' +
     convertirFechaHora(linea.fechaFin.date.substr(0,16)) +
-    "</h4>";
+    "</h3>";
 
     document.getElementById("divResultados").appendChild(unDiv);
 
@@ -865,19 +1018,6 @@ function escribeContenedorServicio(linea){
     'Presentacion: ' + convertirFechaHora(linea.fechaFirma.date.substr(0,16)) + '<span class="uk-text-danger">Z</span></p><p>' +
     'Fin Actividad: ' + convertirFechaHora(linea.fechaDesfirma.date.substr(0,16)) + '<span class="uk-text-danger">Z</span></p></h4>';
 
-
-    // '</p><p> Horas Actividad: ' + convertirCadenaHsMs(linea.tiempoActividad.h, linea.tiempoActividad.i) +
-    // ', Accu: ' + convertirCadenaHsMs(linea.contadorHact, linea.contadorMact) +
-    // '</p><p> Horas Act Noc: ' + convertirCadenaHsMs(linea.tiempoActividadNocturna.h, linea.tiempoActividadNocturna.i) +
-    // ' (' + parseFloat(linea.importeActividadNoc).toFixed(2) + '€)' +
-    // ', Accu Noc: ' + convertirCadenaHsMs(linea.contadorHactNoc, linea.contadorMactNoc) +
-    // ' (' + parseFloat(linea.contadorImpNoc).toFixed(2) + '€)' +
-    // '</p><p> Horas Act Ext: ' + convertirCadenaHsMs(linea.tiempoActividadEx.h, linea.tiempoActividadEx.i) +
-    // ' (' + parseFloat(linea.importeActividadEx).toFixed(2) + '€)' +
-    // ', Accu Ext: ' + convertirCadenaHsMs(linea.contadorHactEx, linea.contadorMactEx) +
-    // ' (' + parseFloat(linea.contadorImpEx).toFixed(2) + '€)' +
-    // '</h4>';
-
     unDiv.innerHTML=unDiv.innerHTML +
 
     '<h4><table class="tabla_act"><tr><th>ACTIVIDAD</th><th>ACTUAL</th><th>ACUMULADO</th></tr><tr><th>TOTAL</th>' +
@@ -912,6 +1052,8 @@ function escribeContenedorServicio(linea){
 }
 
 function convertirCadenaHsMs(horas,minutos){
+
+    if(horas==undefined || minutos==undefined) return "*err*";
 
     return horas.toString().padStart(3, '0') + ":" + minutos.toString().padStart(2, '0');
 

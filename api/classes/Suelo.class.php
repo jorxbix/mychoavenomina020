@@ -37,6 +37,8 @@ class Suelo {
 
 	public $observaciones="Sin Observaciones";
 
+	public $misc="";
+
 
 	public function __construct($fila,$piloto){
 

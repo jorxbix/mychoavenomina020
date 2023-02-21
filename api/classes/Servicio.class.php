@@ -141,9 +141,7 @@ class Servicio{
 	 */
 	public function asignaDietas(){
 
-
-
-		if(isset($this->arrVuelos)){
+		if(!is_null($this->arrVuelos)){
 
 			$this->asignaDietasVuelo();
 
@@ -376,13 +374,13 @@ class Servicio{
 		global $sonServTierra;
 
 		if(!in_array($this->tipo,$sonServTierra)) return;
+
 		if(Servicio::$diaUltimaDieta==$this->fechaFin->format("d")){
 
 			$this->misc="Dieta ya asignada";
 			$this->fantasma=true;
-			$this->destruir=true;
+			if($this->tipo=="SA") $this->destruir=true;
 			return;
-
 
 		}
 
@@ -396,11 +394,11 @@ class Servicio{
 		}
 
 
-
-
 		$INFO="";
 
-		$PERNOCTA=true;
+		$PERNOCTA=false;
+
+		if($BASE!=$this->aptFin) $PERNOCTA=true;
 
 		$INFO=$INFO . "DIETA TIERRA ";
 
@@ -466,6 +464,18 @@ class Servicio{
 			}
 
 			$this->actualizaTotales();
+			//asigno las fechas de firma y desfirma al mismo que fecha ini y fecha fin
+			$this->fechaFirma=$this->fechaIni;
+			$this->fechaDesfirma=$this->fechaFin;
+			$this->calculaActividadNocturna();
+			$this->calculaActividadExtra();
+
+			//guardo rn variables static del lugar y fecha donde ha
+			//salido el tripulante ACRTUALIZO VARIABLES STATIC para el calculo de timezone
+			Servicio::$fechaIniServicio=$this->fechaFirma;
+			Servicio::$aptoIniServicio=$this->aptIni;
+
+			$this->calculaImportes();
 			$this->asignaDietas();
 			return;
 
@@ -1441,7 +1451,15 @@ class Servicio{
 
 		$time_zone=$this->dameTz($estado_aclim);
 
-		$numero_sectores=count($this->arrVuelos);
+		if($this->arrVuelos!=null){
+
+			$numero_sectores=count($this->arrVuelos);
+
+		}else{
+
+			$numero_sectores=1;
+		}
+
 
 		if($estado_aclim=="X"){
 

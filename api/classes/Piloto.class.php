@@ -25,6 +25,8 @@ class Piloto{
 
 	public $aclimatadoInicial;
 
+	public $sentenciaPerfiles=false;
+
 
 /**
  *
@@ -33,7 +35,7 @@ class Piloto{
 
 		$nivel=strtoupper(trim($piloto->nivel));
 
-		// $miNivelSalarial=new NivelSalarial($nivel,false);
+		if($piloto->tablas_sentencia==true) $this->sentenciaPerfiles=true;
 
 		if($piloto->tablas_antiguas==true){
 

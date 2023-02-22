@@ -326,13 +326,29 @@ function restProcesaProg($datos){
 			//2.1 VAMOS A VER SI EL SERVICIOO ES UNA IMAGINARIA (la im es un servicio en si)
 			if($servicio->tipo=="IM"){
 
-				$miImaginaria=new Imaginaria($servicio,$miPiloto);
+				//2.1.1 La imaginaria comprende dos dias (imaginarias de noche)...
+				if(esImaginariaDoble($servicio)){
 
-				array_push($contenedor,$miImaginaria);
+					$arrImaginarias=divideImaginarias($servicio);
 
-				if(Servicio::$dietaPendiente){
+					$miImaginaria=new Imaginaria($arrImaginarias[0],$miPiloto);
 
-					array_push($contenedor,dame_SA_dieta());
+					array_push($contenedor,$miImaginaria);
+
+					$miImaginaria=new Imaginaria($arrImaginarias[1],$miPiloto);
+
+					array_push($contenedor,$miImaginaria);
+
+					if(Servicio::$dietaPendiente) array_push($contenedor,dame_SA_dieta());
+
+				//2.1.2 La imaginaria solo comprende un dia
+				}else{
+
+					$miImaginaria=new Imaginaria($servicio,$miPiloto);
+
+					array_push($contenedor,$miImaginaria);
+
+					if(Servicio::$dietaPendiente) array_push($contenedor,dame_SA_dieta());
 
 				}
 
@@ -490,6 +506,8 @@ function esServicioDiferente($vueloA,$vueloB){
 	if(in_array($vueloB->tipo,$sonLibres)) return true;
 	if(in_array($vueloA->tipo,$sonVuelos) && in_array($vueloB->tipo,$sonServTierra)) return true;
 	if(in_array($vueloB->tipo,$sonVuelos) && in_array($vueloA->tipo,$sonServTierra)) return true;
+	//el caso del SA es extraño pq es libre pero puedes cobrar dieta
+	if($vueloA->tipo=="SA" || $vueloB->tipo=="SA") return true;
 
 	global $tiempoEntreServicios;
 
@@ -563,6 +581,60 @@ function memorizaHoras($datos){
 
 	echo json_encode($objVuelosMemorizados);
 	exit;
+
+}
+
+function esImaginariaDoble($fila){
+
+	$fechaIni=DateTime::createFromFormat("d/m/Y G:i",$fila->fechaIni);
+
+	$fechaFin=DateTime::createFromFormat("d/m/Y G:i",$fila->fechaFin);
+
+	if($fechaIni==false || $fechaFin==false){
+
+		$putoFallo=new Fallo($fila,"Alguna fecha suministrada en la Imaginaria es invalida");
+
+	}
+
+	$diaInicio=$fechaIni->format("d");
+	$diaFin=$fechaFin->format("d");
+
+	//echo "dia inicio $diaInicio y dia fin $diaFin";
+
+	if($diaInicio<$diaFin){
+
+		return true;
+
+	}else{
+
+		return false;
+
+	}
+
+}
+
+function divideImaginarias($servicio){
+
+	$arrImaginarias=[];
+
+	$imaginaria1=clone($servicio);
+	$imaginaria2=clone($servicio);
+
+	$arrFecha= explode(" ", $imaginaria1->fechaIni);
+	$arrFecha[1]="23:59";
+
+	$imaginaria1->fechaFin=$arrFecha[0] . " " . $arrFecha[1] ;
+
+	$arrFecha= explode(" ", $imaginaria2->fechaFin);
+	$arrFecha[1]="00:00";
+
+	$imaginaria2->fechaIni=$arrFecha[0] . " " . $arrFecha[1] ;
+
+	$arrImaginarias[0]=$imaginaria1;
+
+	$arrImaginarias[1]=$imaginaria2;
+
+	return $arrImaginarias;
 
 }
 

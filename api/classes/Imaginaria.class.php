@@ -29,6 +29,8 @@ class Imaginaria {
 
 	public $misc="";
 
+	public $imaginariaDoble=false;
+
 
 	public function __construct($fila,$piloto){
 

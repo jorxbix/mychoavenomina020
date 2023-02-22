@@ -24,6 +24,10 @@ class Vuelo {
 	public static $totalMinutosPerfil=0;
 	public static $totalImportePerfil=0;
 
+	public static $totalHorasPerfil_sentencia=0;
+	public static $totalMinutosPerfil_sentencia=0;
+	public static $totalImportePerfil_sentencia=0;
+
 	public static $totalHorasBlock=0;
 	public static $totalMinutosBlock=0;
 
@@ -33,9 +37,14 @@ class Vuelo {
 	private $piloto;
 	//cada vuelo tendra asociado un objeto perfil
 	public $perfil;
+	public $perfilSentencia;
 	//cada vuelo tendra asociado un importe segun estemos en h1 o h2
 	public $contadorHperfil=0;
 	public $contadorMperfil=0;
+
+	public $contadorHperfil_sentencia=0;
+	public $contadorMperfil_sentencia=0;
+
 	public $contadorHact=0;
 	public $contadorMact=0;
 	public $contadorHblock=0;
@@ -45,7 +54,11 @@ class Vuelo {
 	public $importePerfil=0;
 	public $importePorEsteVuelo=0;
 
+	public $importePerfil_Sentencia=0;
+	public $importePorEsteVuelo_Sentencia=0;
+
 	public $observaciones="Sin Observaciones";
+	public $observaciones_sentencia="Sin Observaciones (sentencia)";
 	public $misc="";
 	public $fantasma=false;
 
@@ -86,6 +99,7 @@ class Vuelo {
 		}else{
 
 			$this->asignaPerfil();
+			if($this->piloto->sentenciaPerfiles==true) $this->asignaPerfilSentencia();
 
 		}
 
@@ -334,7 +348,108 @@ class Vuelo {
 
 	}
 
+	private function asignaPerfilSentencia(){
 
+		global $limiteH1;
+		global $limiteH2;
+
+		//la sentencia no tiene sentido para pilotos del b737
+		if($this->piloto->flota=="B737") return;
+
+		$unPerfil=new Perfil("R","A330",$this->aptIni.$this->aptFin);
+
+		$this->perfilSentencia=$unPerfil->devuelveDatosPerfil("R","A330",$this->aptIni.$this->aptFin);
+
+		//si el perfil no se encuentra utilizamos el del B787 (la flota que toca)
+		if ($this->perfilSentencia==false){
+
+			$this->perfilSentencia=$unPerfil->devuelveDatosPerfil("R",$this->piloto->flota,$this->aptIni.$this->aptFin);
+
+		}
+
+		//si seguimossin encontrar el perfil lanzamos el error
+		if ($this->perfilSentencia==false){
+
+			$this->observaciones_sentencia="Perfil Sentencia no encontrado.";
+			return;
+
+		}
+
+		$tiempoPerfil=$this->perfilSentencia["tiempo_perfil"];
+
+		$arrTimepoPerfil=explode(":",$tiempoPerfil);
+
+		//si el vuelo no corresponde al mes del informe no actualizo totales
+		//ni hago mas calculos
+		if ($this->fechaIni->format('n')!=$_SESSION['mesInforme'] && $_SESSION['mesInforme']!=0){
+
+			//$this->fantasma=true;
+			return;
+
+		}
+
+		Vuelo::$totalHorasPerfil_sentencia=Vuelo::$totalHorasPerfil_sentencia+$arrTimepoPerfil[0];
+
+		Vuelo::$totalMinutosPerfil_sentencia=Vuelo::$totalMinutosPerfil_sentencia+$arrTimepoPerfil[1];
+
+		//pasamos los minutos a horas ....
+		if(Vuelo::$totalMinutosPerfil_sentencia>=60){
+
+			$sumHoras=intdiv(Vuelo::$totalMinutosPerfil_sentencia,60);
+
+			Vuelo::$totalHorasPerfil_sentencia=Vuelo::$totalHorasPerfil_sentencia+$sumHoras;
+
+			$nuevosMinutos=Vuelo::$totalMinutosPerfil_sentencia % 60;
+
+			Vuelo::$totalMinutosPerfil_sentencia=$nuevosMinutos;
+
+		}
+
+		$this->contadorHperfil_sentencia=Vuelo::$totalHorasPerfil_sentencia;
+		$this->contadorMperfil_sentencia=Vuelo::$totalMinutosPerfil_sentencia;
+
+		$this->observaciones_sentencia= "No Bonus Sentencia (h1=" . round($limiteH1,2) . ", h2=" . round($limiteH2,2) . ")" ;
+
+		if($this->contadorHperfil_sentencia>=$limiteH2){
+
+			$importeH2=$this->piloto->nivel['h2'];
+			$importeH1=$this->piloto->nivel['h1'];
+
+			$horas=$this->contadorHperfil_sentencia-$limiteH2;
+
+			$minutos=$this->contadorMperfil_sentencia;
+
+			//al importe total por perfil hay que añadir el importe por por h1
+			$this->importePerfil_Sentencia=($limiteH2-$limiteH1)*$importeH1;
+
+			$this->observaciones_sentencia="H1(sen)=" . $this->importePerfil_Sentencia . "€ H2(sen)=" .
+			round($horas*$importeH2 + ($minutos/60*$importeH2),2) . "€.";
+
+			$this->importePerfil_Sentencia=$this->importePerfil_Sentencia + round($horas*$importeH2 + ($minutos/60*$importeH2),2);
+
+			$this->importePorEsteVuelo_Sentencia=$this->importePerfil_Sentencia - Vuelo::$totalImportePerfil_sentencia;
+
+			Vuelo::$totalImportePerfil_sentencia= $this->importePerfil_Sentencia;
+
+		}elseif($this->contadorHperfil_sentencia>=$limiteH1 && $this->contadorHperfil_sentencia<$limiteH2){
+
+			$importeH1=$this->piloto->nivel['h1'];
+
+			$horas=$this->contadorHperfil_sentencia-$limiteH1;
+
+			$minutos=$this->contadorMperfil_sentencia;
+
+			$this->importePerfil_Sentencia=round($horas*$importeH1 + ($minutos/60*$importeH1),2);
+
+			$this->observaciones_sentencia= "H1(sen)=" . $this->importePerfil_Sentencia . "€";
+
+			$this->importePorEsteVuelo_Sentencia=$this->importePerfil_Sentencia - Vuelo::$totalImportePerfil_sentencia;
+
+			Vuelo::$totalImportePerfil_sentencia= $this->importePerfil_Sentencia;
+
+		}
+
+	}
 
 
 

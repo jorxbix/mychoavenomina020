@@ -10,6 +10,10 @@ var importePerfil=0;
 var horasPerfil="";
 var resumenPerfil="";
 
+var importePerfil_sentencia=0;
+var horasPerfil_sentencia="";
+var resumenPerfil_sentencia="";
+
 var contadorIms=0;
 var importeIms=0;
 
@@ -24,6 +28,7 @@ var horasActividadEx="";
 var importeEx=0;
 
 var desglosePerfil="";
+var desglosePerfil_sentencia="";
 
 var numeroDietas=0;
 
@@ -132,6 +137,10 @@ function volverPreparacion(eve){
     horasPerfil="";
     resumenPerfil="";
 
+    importePerfil_sentencia=0;
+    horasPerfil_sentencia="";
+    resumenPerfil_sentencia="";
+
     contadorIms=0;
     importeIms=0;
 
@@ -219,6 +228,11 @@ function procesaPiloto(){
         valor=true;
     }else{valor=false};
 
+    let valor2=false;
+    if(document.getElementById("tablas_sentencia").checked==true){
+        valor2=true;
+    }else{valor2=false};
+
     const piloto={
         nivel: document.getElementById("nivel").value,
         dietas: document.getElementById("dietas").value,
@@ -229,7 +243,9 @@ function procesaPiloto(){
         tiempo_firma :document.getElementById("tiempo_firma").value,
         tiempo_desfirma :document.getElementById("tiempo_desfirma").value,
         aclimatado :document.getElementById("aclimatado").value,
-        tablas_antiguas: valor
+        tablas_antiguas: valor,
+        tablas_sentencia: valor2,
+
 
     };
 
@@ -405,22 +421,6 @@ function listenPost(eve){
 
 function crearResumen(){
 
-    console.log(
-        "DNC " + numeroDNC + "\n" +
-        "DNP " + numeroDNP + "\n" +
-        "DNT " + numeroDNT + "\n" +
-        "DIC " + numeroDIC + "\n" +
-        "DIP " + numeroDIP + "\n" +
-        "DIT " + numeroDIT + "\n" +
-        "DLC " + numeroDLC + "\n" +
-        "DLP " + numeroDLP + "\n" +
-        "DLT " + numeroDLT + "\n" +
-        "DLC2 " + numeroDLC2 + "\n" +
-        "DLP2 " + numeroDLP2 + "\n" +
-        "DLT2 " + numeroDLT2 + "\n"
-
-    )
-
     //resumen imaginarias
     const pImaginarias= document.createElement("p");
     let cadena= contadorIms + " Imaginarias, " + importeIms.toFixed(2) + " €";
@@ -442,6 +442,17 @@ function crearResumen(){
 
     pPerfil.appendChild(txtPerfil);
 
+    //resumen perfil sentencia
+    const pPerfil_sentencia= document.createElement("p");
+    if(horasPerfil_sentencia!=""){
+
+        let cadena22= horasPerfil_sentencia + " Horas Perfil Sentencia, " + importePerfil_sentencia.toFixed(2) + " €, (" + desglosePerfil_sentencia + ")";
+        const txtPerfil_sentencia=document.createTextNode(cadena22);
+
+        pPerfil_sentencia.appendChild(txtPerfil_sentencia);
+
+    }
+
     //resumen actividad
     const pActividad= document.createElement("p");
     let cadena3= "Total Actividad: " + horasActividad + ", Nocturna: " +
@@ -455,10 +466,35 @@ function crearResumen(){
     const pDietas= document.createElement("p");
     let cadena4= numeroDietas + " Dietas, Total BRUTO: " + dietasBruto.toFixed(2) +
     "€, Exentas Tributacion: " + dietasExentas.toFixed(2) +
-    "€, Sujetas Retencion: " + dietasSujetas.toFixed(2) + "€";
+    "€, Sujetas Retencion: " + dietasSujetas.toFixed(2) + "€.";
+
+    const pDietasDesglose= document.createElement("p");
+    let cadena5= "Dietas por tipo:";
+
+    if (numeroDNC!=0) cadena5 = cadena5 + " (DNC = " + numeroDNC + ")" ;
+    if (numeroDNP!=0) cadena5 = cadena5 + " (DNP = " + numeroDNP + ")" ;
+    if (numeroDNT!=0) cadena5 = cadena5 + " (DNT = " + numeroDNT + ")" ;
+
+    if (numeroDIC!=0) cadena5 = cadena5 + " (DIC = " + numeroDIC + ")" ;
+    if (numeroDIP!=0) cadena5 = cadena5 + " (DIP = " + numeroDIP + ")" ;
+    if (numeroDIT!=0) cadena5 = cadena5 + " (DIT = " + numeroDIT + ")" ;
+
+    if (numeroDLC!=0) cadena5 = cadena5 + " (DLC = " + numeroDLC + ")" ;
+    if (numeroDLC2!=0) cadena5 = cadena5 + " (DLC2 = " + numeroDLC2 + ")" ;
+    if (numeroDLP!=0) cadena5 = cadena5 + " (DLP = " + numeroDLP + ")" ;
+    if (numeroDLP2!=0) cadena5 = cadena5 + " (DLP2 = " + numeroDLP2 + ")" ;
+    if (numeroDLT!=0) cadena5 = cadena5 + " (DLT = " + numeroDLT + ")" ;
+    if (numeroDLT2!=0) cadena5 = cadena5 + " (DLT2 = " + numeroDLT2 + ")" ;
+
+
+
+
+
     const txtDietas=document.createTextNode(cadena4);
+    const txtDietas2=document.createTextNode(cadena5);
 
     pDietas.appendChild(txtDietas);
+    pDietasDesglose.appendChild(txtDietas2);
 
 
 
@@ -475,8 +511,11 @@ function crearResumen(){
     divResumen.appendChild(pImaginarias);
     divResumen.appendChild(pVS);
     divResumen.appendChild(pPerfil);
+    //resumen perfil sentencia
+    if(horasPerfil_sentencia!="") divResumen.appendChild(pPerfil_sentencia);
     divResumen.appendChild(pActividad);
     divResumen.appendChild(pDietas);
+    divResumen.appendChild(pDietasDesglose);
     document.getElementById("divResultados").appendChild(divResumen);
 
 
@@ -611,6 +650,11 @@ function escribeError(objError){
     importePerfil=0;
     horasPerfil="";
     resumenPerfil="";
+
+    importePerfil_sentencia=0;
+    horasPerfil_sentencia="";
+    resumenPerfil_sentencia="";
+
     contadorIms=0;
     importeIms=0;
 
@@ -683,6 +727,7 @@ function escribeVuelo(linea){
         '</p>';
 
         desglosePerfil=linea.arrVuelos[i].observaciones;
+        desglosePerfil_sentencia=linea.arrVuelos[i].observaciones_sentencia;
 
         unDiv.appendChild(unH4);
         unContenedor.appendChild(unDiv);
@@ -691,6 +736,16 @@ function escribeVuelo(linea){
         horasPerfil=convertirCadenaHsMs(linea.arrVuelos[i].contadorHperfil, linea.arrVuelos[i].contadorMperfil);
         importePerfil=linea.arrVuelos[i].importePerfil;
         resumenPerfil=linea.arrVuelos[i].observaciones;
+
+        //***actualizo las variables globales sentencia para el reumen final (hay que hacerlo en cada vuelo)
+        if(linea.piloto.sentenciaPerfiles==true){
+
+            horasPerfil_sentencia=convertirCadenaHsMs(linea.arrVuelos[i].contadorHperfil_sentencia, linea.arrVuelos[i].contadorMperfil_sentencia);
+            importePerfil_sentencia=linea.arrVuelos[i].importePerfil_Sentencia;
+            resumenPerfil_sentencia=linea.arrVuelos[i].observaciones_sentencia;
+
+        }
+
 
         //variables globales para vs
         if(linea.arrVuelos[i].tipo=="VS"){
@@ -718,13 +773,13 @@ function escribeImaginaria(linea){
 
     unDiv=document.createElement("div");
     unDiv.classList.add("servicioTierra");
-    unDiv.innerHTML="<h4>" + linea.tipo + "<p>" +
+    unDiv.innerHTML="<h3>" + linea.tipo + "<p>" +
     convertirFechaHora(linea.fechaIni.date.substr(0,16)) + "</p><p>" +
     convertirFechaHora(linea.fechaFin.date.substr(0,16)) + "</p>" +
     '<p> (Horas IM: ' + convertirCadenaHsMs(linea.tiempoImaginaria.h, linea.tiempoImaginaria.i) +
     ') Importe IM: ' + linea.importeImaginaria + "€, Sumatorio IMs: " + linea.contadorImporteImaginarias +
     "€, equivalen a " + linea.contadorNumImaginarias + " IM(s)" +
-    '</p><p>Se han añadido 12h a la actividad acumulada.</p></h4>';
+    '</p><p>Se han añadido 12h a la actividad acumulada.</p></h3>';
 
     document.getElementById("divResultados").appendChild(unDiv);
 
@@ -744,6 +799,7 @@ function escribeTierra(linea){
     '<p> Horas Actividad: ' + convertirCadenaHsMs(linea.tiempoActividad.h, linea.tiempoActividad.i) +
     ', Accu: ' + convertirCadenaHsMs(linea.contadorHact, linea.contadorMact) +
     "</p></h4>";
+
 
     if(linea.arrDietas!=null){
 
@@ -842,7 +898,7 @@ function escribeSA(linea){
  */
 function escribeDieta(linea){
 
-    const mesInforme=linea.mesDelInforme;
+   const mesInforme=linea.mesDelInforme;
 
     mesINFORME=mesInforme;
 
@@ -1042,10 +1098,15 @@ function escribeContenedorServicio(linea){
     horasActividadEx=convertirCadenaHsMs(linea.contadorHactEx, linea.contadorMactEx);
     importeEx=parseFloat(linea.contadorImpEx).toFixed(2);
 
-    //***************ESCRIBIR LAS DIETAS******************* */
-    let unDivDieta=escribeDieta(linea);
+    //***************ESCRIBIR LAS DIETAS******si las hay************* */
+    if(linea.arrDietas!=null){
 
-    unDiv.appendChild(unDivDieta);
+        let unDivDieta=escribeDieta(linea);
+
+        unDiv.appendChild(unDivDieta);
+
+    }
+
 
     return unDiv;
 

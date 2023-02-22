@@ -210,7 +210,7 @@ p{
 
 }
 
-#tablas_antiguas{
+#tablas_antiguas, #tablas_sentencia{
     width: auto;
     margin: 15px 0px 15px 15px;
     margin-left: 0px;
@@ -222,7 +222,7 @@ p{
 
 }
 
-#lbl_tablas{
+#lbl_tablas, #lbl_tablas2{
     display: inline;
     align-items: left;
     border-radius: 5px;

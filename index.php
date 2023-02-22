@@ -120,6 +120,13 @@ function checkSession(){
 
     </p>
 
+    <p>
+
+    <input type="checkbox" id="tablas_sentencia" name="tablas_sentencia" value="true">
+    <label id="lbl_tablas2" for="tablas_sentencia">Aplicar Sentencia Perfiles</label>
+
+    </p>
+
 
 
     <label for="tiempo_firma">Tiempo Firma</label>

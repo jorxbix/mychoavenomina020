@@ -19,7 +19,7 @@ session_start();
 
 $sonVuelos=["CO","PM","PR","PS","VS"];
 $sonServTierra=["SR","OC","EN","XX","SA","FR","CR"];
-$sonLibres=["LI","LN","LD","VA"];
+$sonLibres=["LI","LN","LD","VA","LA","RT","LB","BA"];
 
 //09h para considerar dos actividades diferrentes
 $tiempoEntreServicios=new DateInterval("PT09H");

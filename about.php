@@ -115,6 +115,26 @@ function checkSession(){
 
     </div>
 
+    <div>
+
+        <a href="media/mychoavenomina050.zip">
+
+            Aqui un archivo ZIP con el codigo en uso .... ver 0.50 (01/JUN/2023)
+
+        </a>
+
+        <ul>
+                <li>Añadida funcionalidad para el cálculo de Reservas.</li>
+                <li>Error conocido con el calculo de imaginarias q comprenden 2 dias.</li>
+                <li>Error de representacion conocido con los calculos de dias que comprenden actividad en tierra y actividad en vuelo.</li>
+                <li>Corregidos fallos en el orden de la representacion de servicios.</li>
+                <li>Corregidos fallos menores en todas las areas.</li>
+
+        </ul>
+
+
+    </div>
+
     <div id="divActExtra">
 
         <a href="#divActExtra">

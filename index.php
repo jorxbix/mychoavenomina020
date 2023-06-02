@@ -56,7 +56,7 @@ function checkSession(){
 </div>
 
 <div id="divSecciones">
-   <a href="howto.php">¿HowTo?</a>   |   <a href="about.php">About</a>
+   <a href="howto.php">¿HowTo?</a>   |   <a href="about.php">About ver 0.50</a>
 </div>
 
 <div id="divPreparacion">

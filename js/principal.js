@@ -2,6 +2,7 @@ var arrServiciosVuelo=["CO","PM","PR","CS","VS"];
 var arrServiciosTierra=["CR","SR","SIM","RM","OC","DI"];
 var arrServiciosLibre=["LI","LN","VA","FR","VA","BA","RT","LB"];
 var arrServiciosImaginaria=["IM"];
+var arrServiciosReserva=["RV"];
 var arrServiciosSA=["SA"];
 
 var rutaApi="/mychoavenomina/api/programacion"
@@ -16,6 +17,9 @@ var resumenPerfil_sentencia="";
 
 var contadorIms=0;
 var importeIms=0;
+
+var contadorRvs = 0;
+var importeRvs = 0;
 
 var contadorVS=0;
 var importeVS=0;
@@ -428,6 +432,13 @@ function crearResumen(){
 
     pImaginarias.appendChild(txtImaginarias);
 
+    //resumen reservas
+    const pReservas= document.createElement("p");
+    let cadenaRV= contadorRvs + " Reservas, " + importeRvs.toFixed(2) + " €";
+    const txtReservas=document.createTextNode(cadenaRV);
+
+    pReservas.appendChild(txtReservas);
+
     //resumen VS
     const pVS= document.createElement("p");
     let cadenaVS= contadorVS + " Vuelos Situacion, " + importeVS.toFixed(2) + " €";
@@ -508,6 +519,7 @@ function crearResumen(){
     if (mesINFORME==0) mesINFORME="No Especificado";
 
     divResumen.innerHTML='<h3 class="uk-card-title">Resumen mes: ' + mesINFORME + '</h3>';
+    divResumen.appendChild(pReservas);
     divResumen.appendChild(pImaginarias);
     divResumen.appendChild(pVS);
     divResumen.appendChild(pPerfil);
@@ -603,6 +615,10 @@ function presentaResultados(unArchivoJson){
 
             escribeImaginaria(LINEA);
 
+        }else if (arrServiciosReserva.includes(codigoServicio)){
+
+            escribeReserva(LINEA);
+
         }else if (arrServiciosTierra.includes(codigoServicio)){
 
             escribeTierra2(LINEA);
@@ -616,6 +632,7 @@ function presentaResultados(unArchivoJson){
             if(LINEA.arrDietas==undefined){
 
                 escribeLibre(LINEA);
+                //escribeSA(LINEA); da fallos pq no hay dietas cuando las busca
 
             }else{
 
@@ -773,9 +790,31 @@ function escribeImaginaria(linea){
 
     unDiv=document.createElement("div");
     unDiv.classList.add("servicioTierra");
-    unDiv.innerHTML="<h3>" + linea.tipo + "<p>" +
-    convertirFechaHora(linea.fechaIni.date.substr(0,16)) + "</p><p>" +
-    convertirFechaHora(linea.fechaFin.date.substr(0,16)) + "</p>" +
+    // unDiv.innerHTML="<h3>" + linea.tipo + "<p>" +
+    // convertirFechaHora(linea.fechaIni.date.substr(0,16)) + "</p><p>" +
+    // convertirFechaHora(linea.fechaFin.date.substr(0,16)) + "</p>" +
+    // '<p> (Horas IM: ' + convertirCadenaHsMs(linea.tiempoImaginaria.h, linea.tiempoImaginaria.i) +
+    // ') Importe IM: ' + linea.importeImaginaria + "€, Sumatorio IMs: " + linea.contadorImporteImaginarias +
+    // "€, equivalen a " + linea.contadorNumImaginarias + " IM(s)" +
+    // '</p><p>Se han añadido 12h a la actividad acumulada.</p></h3>';
+
+    // document.getElementById("divResultados").appendChild(unDiv);
+
+    unDiv.innerHTML=
+    '<ul uk-accordion>' +
+    '<li>' +
+        '<a class="uk-accordion-title" href="#">' +
+            '<h3><span class="uk-label">' + dameDia(linea.fechaIni.date) + '</span> Imaginaria '  +
+            linea.tipo + ' ' + linea.aptFin + '</h3>' +
+        '</a>' +
+        '<div class="uk-accordion-content">' +
+
+        '</div>' +
+    '</li>' +
+    '</ul>';
+    unDiv.innerHTML=unDiv.innerHTML+'<h4><p>' +
+    'Inicio: ' + convertirFechaHora(linea.fechaIni.date.substr(0,16)) + '<span class="uk-text-danger">Z</span></p><p>' +
+    'Fin IM: ' + convertirFechaHora(linea.fechaFin.date.substr(0,16)) + '<span class="uk-text-danger">Z</span></p>'+
     '<p> (Horas IM: ' + convertirCadenaHsMs(linea.tiempoImaginaria.h, linea.tiempoImaginaria.i) +
     ') Importe IM: ' + linea.importeImaginaria + "€, Sumatorio IMs: " + linea.contadorImporteImaginarias +
     "€, equivalen a " + linea.contadorNumImaginarias + " IM(s)" +
@@ -786,6 +825,51 @@ function escribeImaginaria(linea){
     //actualizo las variables globales para el resumen final
     contadorIms = linea.contadorNumImaginarias;
     importeIms = linea.contadorImporteImaginarias;
+
+}
+
+function escribeReserva(linea){
+
+    // unDiv=document.createElement("div");
+    // unDiv.classList.add("servicioTierra");
+    // unDiv.innerHTML="<h3>" + linea.tipo + "<p>" +
+    // convertirFechaHora(linea.fechaIni.date.substr(0,16)) + "</p><p>" +
+    // convertirFechaHora(linea.fechaFin.date.substr(0,16)) + "</p>" +
+    // '<p> (Horas RV: ' + convertirCadenaHsMs(linea.tiempoReserva.h, linea.tiempoReserva.i) +
+    // ') Importe RV: ' + linea.importeReserva + "€, Sumatorio RVs: " + linea.contadorImporteReservas +
+    // "€, equivalen a " + linea.contadorNumReservas + " RV(s)" +
+    // '</p><p>Se han añadido 6h a la actividad acumulada.</p></h3>';
+
+    // document.getElementById("divResultados").appendChild(unDiv);
+
+    unDiv=document.createElement("div");
+    unDiv.classList.add("servicioTierra");
+
+    unDiv.innerHTML=
+    '<ul uk-accordion>' +
+    '<li>' +
+        '<a class="uk-accordion-title" href="#">' +
+            '<h3><span class="uk-label">' + dameDia(linea.fechaIni.date) + '</span> Reserva '  +
+            linea.tipo + ' ' + linea.aptFin + '</h3>' +
+        '</a>' +
+        '<div class="uk-accordion-content">' +
+
+        '</div>' +
+    '</li>' +
+    '</ul>';
+    unDiv.innerHTML=unDiv.innerHTML+'<h4><p>' +
+    'Inicio: ' + convertirFechaHora(linea.fechaIni.date.substr(0,16)) + '<span class="uk-text-danger">Z</span></p><p>' +
+    'Fin RV: ' + convertirFechaHora(linea.fechaFin.date.substr(0,16)) + '<span class="uk-text-danger">Z</span></p>'+
+    '<p> (Horas RV: ' + convertirCadenaHsMs(linea.tiempoReserva.h, linea.tiempoReserva.i) +
+    ') Importe RV: ' + linea.importeReserva + '€, Sumatorio RVs: ' + linea.contadorImporteReservas +
+    '€, equivalen a ' + linea.contadorNumReservas + ' RV(s)' +
+    '</p><p>Se han añadido 6h a la actividad acumulada.</p></h4>';
+
+    document.getElementById("divResultados").appendChild(unDiv);
+
+    //actualizo las variables globales para el resumen final
+    contadorRvs = linea.contadorNumReservas;
+    importeRvs = linea.contadorImporteReservas;
 
 }
 
@@ -1026,14 +1110,34 @@ function sumaParcialesDieta(cod_dieta){
 
 function escribeLibre(linea){
 
+    // unDiv=document.createElement("div");
+    // unDiv.classList.add("servicioLibre");
+    // unDiv.innerHTML="<h3>"+linea.tipo+" "+
+    // convertirFechaHora(linea.fechaIni.date.substr(0,16)) + ' hasta: ' +
+    // convertirFechaHora(linea.fechaFin.date.substr(0,16)) +
+    // "</h3>";
+
+    // document.getElementById("divResultados").appendChild(unDiv);
+
     unDiv=document.createElement("div");
     unDiv.classList.add("servicioLibre");
-    unDiv.innerHTML="<h3>"+linea.tipo+" "+
-    convertirFechaHora(linea.fechaIni.date.substr(0,16)) + ' hasta: ' +
-    convertirFechaHora(linea.fechaFin.date.substr(0,16)) +
-    "</h3>";
+
+    unDiv.innerHTML=
+    '<ul uk-accordion>' +
+    '<li>' +
+        '<a class="uk-accordion-title" href="#">' +
+            '<h3><span class="uk-label">' + dameDia(linea.fechaIni.date) + '</span> Libre '  +
+            linea.tipo + ' ' + linea.aptFin + '</h3>' +
+        '</a>' +
+        '<div class="uk-accordion-content">' +
+        convertirFechaHora(linea.fechaIni.date.substr(0,16)) + ' hasta: ' +
+        convertirFechaHora(linea.fechaFin.date.substr(0,16)) +
+        '</div>' +
+    '</li>' +
+    '</ul>' ;
 
     document.getElementById("divResultados").appendChild(unDiv);
+
 
 
 }
@@ -1062,7 +1166,7 @@ function escribeContenedorServicio(linea){
     '<ul uk-accordion>' +
     '<li>' +
         '<a class="uk-accordion-title" href="#">' +
-            '<h3><span class="uk-label">' + dameDia(linea.fechaFirma.date) + '</span> Servicio '  +
+            '<h3><span class="uk-label">' + dameDia(linea.fechaIni.date) + '</span> Servicio '  +
             linea.aptIni + ' - ' + linea.aptFin + '</h3>' +
         '</a>' +
         '<div class="uk-accordion-content">' + linea.misc + '</div>' +

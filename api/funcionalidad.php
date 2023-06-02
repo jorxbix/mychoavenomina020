@@ -13,6 +13,7 @@ require_once "classes/Fallo.class.php";
 require_once "classes/HoraMemorizada.class.php";
 require_once "classes/Firma.class.php";
 require_once "classes/Suelo.class.php";
+require_once "classes/Reserva.class.php";
 session_start();
 //he incluido las clases antes del sesision start pq estaba recibiendo un error
 //_PHP_Incomplete_Class_Name con la clasee HoraMemorizada almacenada en session

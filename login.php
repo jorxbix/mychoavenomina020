@@ -73,6 +73,6 @@ if(isset($_POST['login']) && isset($_POST['pass'])){
 <br>
 
 
-<p id="pieVersion">myChoaveNomina v0.30 13/DEC/2022</p>
+<p id="pieVersion">myChoaveNomina v0.50 01/JUN/2023</p>
 </body>
 </html>

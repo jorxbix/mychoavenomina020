@@ -253,7 +253,7 @@ function restProcesaProg($datos){
 
 	$mismoServicio=new Servicio(null,null);
 
-	foreach($datos->progra as $servicio){
+	foreach($datos->progra as $indice=>$servicio){
 
 		//1.ES UN SERVICIO DE VUELO
 		if(in_array($servicio->tipo,$sonVuelos)){
@@ -323,11 +323,19 @@ function restProcesaProg($datos){
 		//2.NO ES UN SERVICIO DE VUELO (por lo tanto sera un servicio diferente, pues NOOOO)
 		}else{
 
-			//2.1 VAMOS A VER SI EL SERVICIOO ES UNA IMAGINARIA (la im es un servicio en si)
+			//2.1 VAMOS A VER SI EL SERVICIOO ES UNA IMAGINARIA o una RESERVA (la im es un servicio en si)
 			if($servicio->tipo=="IM"){
 
 				//2.1.1 La imaginaria comprende dos dias (imaginarias de noche)...
-				if(esImaginariaDoble($servicio)){
+
+				if(array_key_exists($indice+1, $datos->progra)){
+					$siguienteServicio=$datos->progra[$indice+1]; //obtengo el siguinete servicio
+				}else{
+					$siguienteServicio=null;
+				}
+
+
+				if(esImaginariaDoble($servicio,$siguienteServicio)){
 
 					$arrImaginarias=divideImaginarias($servicio);
 
@@ -351,6 +359,14 @@ function restProcesaProg($datos){
 					if(Servicio::$dietaPendiente) array_push($contenedor,dame_SA_dieta());
 
 				}
+
+			}else if($servicio->tipo=="RV"){
+
+				$miReserva=new Reserva($servicio,$miPiloto);
+
+				array_push($contenedor,$miReserva);
+
+				if(Servicio::$dietaPendiente) array_push($contenedor,dame_SA_dieta());
 
 			//2.2 el servicio no es una imaginaria y puede contener varias lineas
 			}else{
@@ -457,10 +473,49 @@ function restProcesaProg($datos){
 		}
 	}
 
-	echo json_encode($contenedor);
+	echo json_encode (ordenaResultados($contenedor));
 
-	exit;
+	//echo json_encode ($contenedor);
 
+}
+
+function ordenaResultados($contenedor){
+
+	do{
+
+		$servicioAnterior=null;
+		$operacionesRealizadas=0;
+
+		foreach($contenedor as $i=>$servicio){
+
+			if (!is_null($servicioAnterior)){
+
+					// if(($servicioAnterior->fechaIni > $servicio->fechaIni) &&
+					// ($servicioAnterior->fechaFin > $servicio->fechaFin)){
+
+					if($servicio->fechaFin < $servicioAnterior->fechaIni){
+
+						$contenedor[$i-1]=$servicio;
+						$contenedor[$i]=$servicioAnterior;
+						$operacionesRealizadas++;
+						continue;
+
+
+					}else{
+
+
+					}
+
+			}
+
+		$servicioAnterior=$servicio;
+
+		}
+
+	} while ($operacionesRealizadas>0);
+
+
+	return $contenedor;
 
 }
 
@@ -584,13 +639,40 @@ function memorizaHoras($datos){
 
 }
 
-function esImaginariaDoble($fila){
+function esImaginariaDoble($fila,$siguienteFila){
+
+	//echo json_encode($fila) . '-------------' . json_encode($siguienteFila);
 
 	$fechaIni=DateTime::createFromFormat("d/m/Y G:i",$fila->fechaIni);
 
 	$fechaFin=DateTime::createFromFormat("d/m/Y G:i",$fila->fechaFin);
 
-	if($fechaIni==false || $fechaFin==false){
+	if($siguienteFila==null){
+
+		if($fechaIni==false || $fechaFin==false){
+
+			$putoFallo=new Fallo($fila,"Alguna fecha suministrada en la Imaginaria es invalida");
+
+		}
+
+		$diaInicio=$fechaIni->format("d");
+		$diaFin=$fechaFin->format("d");
+
+		if($diaInicio!=$diaFin){
+
+			return true;
+
+		}else{
+
+			return false;
+
+		}
+
+	}
+
+	$fechaIniSiguiente=DateTime::createFromFormat("d/m/Y G:i",$siguienteFila->fechaIni);
+
+	if($fechaIni==false || $fechaFin==false || $fechaIniSiguiente==false){
 
 		$putoFallo=new Fallo($fila,"Alguna fecha suministrada en la Imaginaria es invalida");
 
@@ -598,10 +680,9 @@ function esImaginariaDoble($fila){
 
 	$diaInicio=$fechaIni->format("d");
 	$diaFin=$fechaFin->format("d");
+	$diaInicioSiguiente=$fechaIniSiguiente->format("d");
 
-	//echo "dia inicio $diaInicio y dia fin $diaFin";
-
-	if($diaInicio<$diaFin){
+	if($diaInicio!=$diaFin && $diaFin!=$diaInicioSiguiente){
 
 		return true;
 

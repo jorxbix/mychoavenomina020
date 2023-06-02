@@ -33,10 +33,30 @@ if(isset($_POST['login']) && isset($_POST['pass'])){
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/estilo_login.css">
     <title>Login MyChoaveNomina</title>
+    <style>
+        img{
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 30%;
+
+            }
+        form{
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            width: 80%;
+
+}
+
+    </style>
 
 </head>
 <body>
-<h1>Bienvenido a myChoaveNomina</h1>
+
+<img src="logo.svg" alt="logo image">
+
+
 <form id="formLogin" method="POST" action="login.php" >
     <label for="login">Login</label>
     <input type="text" id="login" name="login" ><br>

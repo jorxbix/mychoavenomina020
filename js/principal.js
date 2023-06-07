@@ -1,11 +1,11 @@
 var arrServiciosVuelo=["CO","PM","PR","CS","VS"];
 var arrServiciosTierra=["CR","SR","SIM","RM","OC","DI"];
-var arrServiciosLibre=["LI","LN","VA","FR","VA","BA","RT","LB"];
+var arrServiciosLibre=["LI","LN","VA","FR","VA","BA","RT","LB","HP","EX"];
 var arrServiciosImaginaria=["IM"];
 var arrServiciosReserva=["RV"];
 var arrServiciosSA=["SA"];
 
-var rutaApi="/mychoavenomina/api/programacion"
+var rutaApi="/jorx/mychoavenomina/api/programacion"
 
 var importePerfil=0;
 var horasPerfil="";
@@ -413,6 +413,7 @@ function listenPost(eve){
             //error cabecera distinta de 200
             } else {
             //muestro codigo de error
+            console.log(eve.target.responseText);
             const msg = JSON.parse(eve.target.responseText);
 
             console.log("ERROR ************");

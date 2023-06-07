@@ -13,7 +13,7 @@ public function __construct()
 $this->host = "localhost";
 $this->db = "choavenomina";
 $this->user = "root";
-$this->pass = "";
+$this->pass = "password";
 $this->dsn = "mysql:host={$this->host};dbname={$this->db};charset=utf8mb4";
 $this->conexion = $this->crearConexion();
 }

@@ -37,13 +37,13 @@ class Piloto{
 
 		if($piloto->tablas_sentencia==true) $this->sentenciaPerfiles=true;
 
-		if($piloto->tablas_antiguas==true){
+		if($piloto->tablas){
 
-			$miNivelSalarial=new NivelSalarial($nivel,true);
+			$miNivelSalarial=new NivelSalarial($nivel,$piloto->tablas);
 
 		}else{
 
-			$miNivelSalarial=new NivelSalarial($nivel,false);
+			$miNivelSalarial=new NivelSalarial($nivel,'2023');
 
 		}
 

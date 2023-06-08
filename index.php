@@ -115,8 +115,16 @@ function checkSession(){
 
     <p>
 
-    <input type="checkbox" id="tablas_antiguas" name="tablas_antiguas" value="true">
-    <label id="lbl_tablas" for="tablas_antiguas">Calculos anteriores a 2022</label>
+    <label for="tablas">Tablas</label>
+    <select name="tablas" id="tablas">
+    <!-- <option value="2023">2023</option> -->
+    <option selected="selected" value="2023">2023</option>
+    <option value="2022">2022</option>
+    <option value="anteriores">anteriores</option>
+    </select>
+
+    <!-- <input type="checkbox" id="tablas_antiguas" name="tablas_antiguas" value="true">
+    <label id="lbl_tablas" for="tablas_antiguas">Calculos anteriores a 2022</label> -->
 
     </p>
 

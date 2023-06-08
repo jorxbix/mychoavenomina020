@@ -227,6 +227,35 @@ function enviarForm(eve){
 
 function procesaPiloto(){
 
+    let tablas=document.getElementById("tablas").value;    
+
+    let valor2=false;
+    if(document.getElementById("tablas_sentencia").checked==true){
+        valor2=true;
+    }else{valor2=false};
+
+    const piloto={
+        nivel: document.getElementById("nivel").value,
+        dietas: document.getElementById("dietas").value,
+        base: document.getElementById("base").value,
+        flota: document.getElementById("flota").value,
+        dias_cobro: document.getElementById("dias_cobro").value,
+        porcentaje_reduccion :document.getElementById("porcentaje_reduccion").value,
+        tiempo_firma :document.getElementById("tiempo_firma").value,
+        tiempo_desfirma :document.getElementById("tiempo_desfirma").value,
+        aclimatado :document.getElementById("aclimatado").value,
+        tablas: tablas,
+        tablas_sentencia: valor2,
+
+
+    };
+
+    return piloto;
+
+}
+
+function procesaPiloto2(){
+
     let valor=false;
     if(document.getElementById("tablas_antiguas").checked==true){
         valor=true;

@@ -11,14 +11,14 @@ class NivelSalarial extends Conexion{
 /**Funcion constructora, devuelve false si el codigo de dieta no existe
  * @param $codigo son las siglas enmayuscula de la dieta a crear
  */
-	public function __construct($codigo, $tablasAntiguas){
+	public function __construct($codigo, $tablas){
 
 		//inicia la funcion constructora de conexion
 		parent::__construct();
 
 		$codigo=strtoupper($codigo);
 
-		$this->arrDatosNivel=$this->devuelveDatosNivel($codigo, $tablasAntiguas);
+		$this->arrDatosNivel=$this->devuelveDatosNivel($codigo, $tablas);
 
 		if(isset($this->arrDatosDieta['nivel']) && $this->arrDatosDieta['nivel']!=null && $this->arrDatosDieta['nivel']!=""){
 
@@ -36,16 +36,16 @@ class NivelSalarial extends Conexion{
 	 * funcion que devuelve un array con todos los datos del nivel
 	 * si no la encuentra en la bbdd devuelve false
 	 */
-	public function devuelveDatosNivel($codigo, $tablasAntiguas){
+	public function devuelveDatosNivel($codigo, $tablas){
 
-		if($tablasAntiguas==false){
+		if($tablas==false){
 
-			$consulta="SELECT * FROM niveles WHERE nivel='$codigo';";
+			$consulta="SELECT * FROM niveles_2023 WHERE nivel='$codigo';";
 
 		}else{
 
-			$consulta="SELECT * FROM niveles_old WHERE nivel='$codigo';";
-
+			$consulta="SELECT * FROM niveles_$tablas WHERE nivel='$codigo';";
+			
 		}
 
 
@@ -85,7 +85,7 @@ class NivelSalarial extends Conexion{
 
 	public function getSelectNiveles(){
 
-		$consulta="SELECT * FROM niveles;";
+		$consulta="SELECT * FROM niveles_2023;";
 
 		try{
 

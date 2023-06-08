@@ -192,6 +192,7 @@ class Vuelo {
 
 		$this->observaciones="No Bonus (h1=" . round($limiteH1,2) . ", h2=" . round($limiteH2,2) . ")" ;
 
+		//1.-NOS PASAMOS DE H2 */
 		if($this->contadorHperfil>=$limiteH2){
 
 			$importeH2=$this->piloto->nivel['h2'];
@@ -204,8 +205,20 @@ class Vuelo {
 			//al importe total por perfil hay que añadir el importe por por h1
 			$this->importePerfil=($limiteH2-$limiteH1)*$importeH1;
 
-			$this->observaciones="H1=" . $this->importePerfil . "€ H2=" .
-			round($horas*$importeH2 + ($minutos/60*$importeH2),2) . "€.";
+			$unidadesH1=$limiteH2-$limiteH1;
+			$unidadesH2=$horas + round(($minutos/60),2);
+			$totH1=round(($limiteH2-$limiteH1)*$importeH1,2);
+			$totH2=round(($horas + round(($minutos/60),2))*$importeH2,2);
+
+			$this->observaciones="H1=$unidadesH1 h * $importeH1 = $totH1 € & H2=$unidadesH2 h * $importeH2 = $totH2 €"; 
+
+			// $this->observaciones="H1=" . 
+			// ($limiteH2-$limiteH1) . " * " . $importeH1 . " = " .
+			// $this->importePerfil . "€ H2=" .
+			// $horas + round(($minutos/60),2) . " * " . $importeH2 . " = " .
+			// round($horas*$importeH2 + ($minutos/60*$importeH2),2) . "€.";
+
+			
 
 			$this->importePerfil=$this->importePerfil + round($horas*$importeH2 + ($minutos/60*$importeH2),2);
 
@@ -213,6 +226,7 @@ class Vuelo {
 
 			Vuelo::$totalImportePerfil= $this->importePerfil;
 
+		//2.- //NOS PASAMOS DE H1 */		
 		}elseif($this->contadorHperfil>=$limiteH1 && $this->contadorHperfil<$limiteH2){
 
 			$importeH1=$this->piloto->nivel['h1'];
@@ -223,7 +237,9 @@ class Vuelo {
 
 			$this->importePerfil=round($horas*$importeH1 + ($minutos/60*$importeH1),2);
 
-			$this->observaciones="H1=" . $this->importePerfil . "€";
+			$unidadesH1=$horas + round($minutos/60,2);			
+
+			$this->observaciones="H1= $unidadesH1 h * $importeH1 = " . $this->importePerfil . "€";
 
 			$this->importePorEsteVuelo=$this->importePerfil - Vuelo::$totalImportePerfil;
 

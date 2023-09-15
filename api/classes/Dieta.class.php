@@ -6,7 +6,7 @@ class Dieta extends Conexion{
 	public $arrDatosDieta;
 	public $diaDieta;
 
-	public static $pernoctaAplicada=false;
+	public static $diasPernocta=[0,0];
 
 /**Funcion constructora, devuelve false si el codigo de dieta no existe
  * @param $codigo son las siglas enmayuscula de la dieta a crear
@@ -85,7 +85,9 @@ class Dieta extends Conexion{
 
 	}
 
-	public static function esPernocta($servicio,$dia,$DISTANCIA){
+	public static function esPernocta($servicio,$dia,$mes){
+
+		global $mesInforme;
 
 		//obtener la bse del pilto
 		$BASE=$servicio->piloto->base;
@@ -109,12 +111,13 @@ class Dieta extends Conexion{
 		$horaLLegada=clone $servicio->fechaDesfirma;
 
 		//le añado 60min como hora de netrada al hotel
-		$horaEntradaHotel->add(new DateInterval('PT1H'));
+		//$horaEntradaHotel->add(new DateInterval('PT1H'));
 
 		//pongo la hora de ntrada al hotel en local de la base
 		$horaEntradaHotel->setTimezone(new DateTimeZone($time_zone));
 
 		$hora_EntradaHotel = (int) $horaEntradaHotel->format("H");
+		$mes_EntradaHotel= (int) $horaEntradaHotel->format("m");
 		$dia_EntradaHotel = (int) $horaEntradaHotel->format("d");
 
 		$horaLLegada->setTimezone(new DateTimeZone($time_zone));
@@ -127,14 +130,15 @@ class Dieta extends Conexion{
 		//EL SERVICIO TERMINA EN UN SITIO QUE NO ES LA BASE ...
 		if($servicio->aptFin!=$BASE){
 
-			if($dia_EntradaHotel>$dia) {
+			//return "diaentradahotel $dia_EntradaHotel y dia dieta $dia ...";
+
+			if($dia_EntradaHotel>$dia || $mes_EntradaHotel>$mes) {
 
 				if($hora_EntradaHotel<7){
 
-					//guardo el vuelo de ida en el que se aplico la pernocta
-					Dieta::$pernoctaAplicada=$servicio->aptIni . $servicio->aptFin;
+					Dieta::$diasPernocta=[$dia,$dia_EntradaHotel];
 
-					return "Pernocta aplicada a la ida (dia diferente).";
+					return "Pernocta entre los dias $dia y $dia_EntradaHotel, entrada hotel < 0700";
 
 				}else{
 
@@ -146,56 +150,37 @@ class Dieta extends Conexion{
 
 			if($dia_EntradaHotel==$dia) {
 
-					//guardo el vuelo de ida en el que se aplico la pernocta
-					Dieta::$pernoctaAplicada=$servicio->aptIni . $servicio->aptFin;
+				if($hora_EntradaHotel>=23){
 
-					return "Pernocta aplicada a la ida (mismo dia).";
+					Dieta::$diasPernocta=[$dia,$dia];
 
-			}
+					return "Pernocta entre los dias $dia y $dia, entrada hotel > 2300";
 
-
-			if($aptoLLegada->pais!="Spain") return "Disponibilidad hotel fuera ESP";
-			if($hora_EntradaHotel>=23 || $hora_EntradaHotel<=7) return "EntradaHotel: " . json_encode($horaEntradaHotel);
-
-
-
-		//EL SERVICIO EMPIEZA FUERA DE BASE Y ACABA EN LA BASE (vueltas)
-		}else if($servicio->aptIni!=$BASE && $servicio->aptFin==$BASE){
-
-			/**
-			 * 1.1 Pernocta:
-			 * – Disponibilidad de hotel fuera del municipio de la base operativa y del municipio de residencia entre las 23:00 y las 07:00, considerando BLOCK ON más 60 minutos como entrada en el hotel.
-			 * – y/o salida de hotel a cualquier hora con llegada a base operativa posterior o igual a las 05:00 (BLOCKS ON).
-			 * -La pernocta se aplicará al primer día.
-			 */
-			 //LA PERNOCTA SE APLICARA EL PRIMER DIA ES UN SOBERANO QUEBRADERO DE CABEZA
-			 //por eso he creado la variable ststic 'pernoctaAplicada'
-
-			//si ya existe la variable compruebo que no sea la vuelta con la pernocta aplicada
-			if(Dieta::$pernoctaAplicada){
-
-				if(($servicio->aptFin . $servicio->aptIni) == Dieta::$pernoctaAplicada){
-
-					$servicio->misc=$servicio->misc . Dieta::$pernoctaAplicada . "-> No es Pernocta pq ya se aplico... ";
-
-					Dieta::$pernoctaAplicada==false;
+				}else{
 
 					return false;
 
 				}
 
 			}
-			/**
-			 * y/o se produzca una salida del hotel a cualquier hora
-			 * con llegada a base operativa igual o posterior a las 05:00 (BLOCKS ON).
-			 */
 
-			if($hora_LLegada>=5) return "HoraLlegada a Base: > 05:00";
-			//if($dia_LLegada>$dia) return "HoraLlegada a Base: + 1dia";
 
+
+		//EL SERVICIO EMPIEZA FUERA DE BASE Y ACABA EN LA BASE (vueltas)
+		}else if($servicio->aptIni!=$BASE && $servicio->aptFin==$BASE){
+
+			if($dia_LLegada>$dia && $hora_LLegada>=5){
+
+				return "HoraLlegada a Base: > 05:00";
+
+			}else{
+
+				return false;
+
+			}
 		}
 
-		//si he llegado hasta aqui sin q se cumpla ninguna condicion es que NO es ernocat
+		//si he llegado hasta aqui sin q se cumpla ninguna condicion es que NO es pernocta
 		return false;
 
 
@@ -348,6 +333,43 @@ class Dieta extends Conexion{
 		}else{
 
 			return [$diaFirma,$diaDesfirma];
+
+		}
+
+	}
+
+	public static function dameMesesDieta($servicio){
+
+		//obtener la bse del pilto
+		$BASE=$servicio->piloto->base;
+
+		$time_zone="Europe/Madrid";
+
+		//obtener fechas firmas en hora local
+		//1. obtener el timezone de la base del fulano
+		$laBase=new Aeropuerto($BASE);
+
+		//si han metido un aeropuerto que no existe, le asignamos MAD
+		if($laBase) $time_zone=$laBase->tz;
+
+
+		$firmaLocal=clone $servicio->fechaFirma;
+		$desFirmaLocal=clone $servicio->fechaDesfirma;
+
+		//paso la hora de firma a la que corresponda en local
+		$firmaLocal->setTimezone(new DateTimeZone($time_zone));
+		$desFirmaLocal->setTimezone(new DateTimeZone($time_zone));
+
+		$mesFirma =(int) $firmaLocal->format("m");
+		$mesDesfirma =(int) $desFirmaLocal->format("m");
+
+		if($mesFirma==$mesDesfirma){
+
+			return [$mesFirma,$mesFirma];
+
+		}else{
+
+			return [$mesFirma,$mesDesfirma];
 
 		}
 

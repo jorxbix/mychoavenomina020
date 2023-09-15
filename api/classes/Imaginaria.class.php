@@ -31,6 +31,8 @@ class Imaginaria {
 
 	public $imaginariaDoble=false;
 
+	public $eliminarSAdietaAnterior=false;
+
 
 	public function __construct($fila,$piloto){
 

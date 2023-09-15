@@ -10,17 +10,26 @@ class Servicio{
 
 	public static $totalHorasActNoc=0;
 	public static $totalMinutosActNoc=0;
+
 	public static $totalHorasActEx=0;
 	public static $totalMinutosActEx=0;
 
+	public static $totalHorasActFueraMins=0;
+	public static $totalMinutosActFueraMins=0;
+
 	public static $totalImporteActNoc=0;
 	public static $totalImporteActEx=0;
+	public static $totalImporteActFueraMins=0;
 
 	public static $diaUltimaDieta=0;
+	public static $importeUltimaDieta=0;
 
 
 	//tipo de servicio
 	public $tipo;
+
+	//este valor indica si se tiene que borra el SA con dieta que se genera:
+	public $eliminarSAdietaAnterior = false;
 
 	//apts donde empieza y acaba el servicio
 	public $aptIni;
@@ -166,11 +175,10 @@ class Servicio{
 
 		$DIETA_LARGA_REDUCIDA=false;
 
-		$OMITIR_PERNOCTA_VUELTA=false;
-
 		//veamos cuantas dietas corresponden a este servicio:
 
 		$arrDIAS_DIETA=Dieta::dameDiasDieta($this);
+		$arrMESES_DIETA=Dieta::dameMesesDieta($this);
 
 		$INFO=$INFO . " arrDias: " . json_encode($arrDIAS_DIETA);
 
@@ -181,17 +189,12 @@ class Servicio{
 		//si no hay dia para dieta aborto
 		if (!isset($arrDIAS_DIETA[0])) return;
 
-		//si la dieta ya esta dada aborto
-		if ($arrDIAS_DIETA[0]==Servicio::$diaUltimaDieta) return;
-
-		Servicio::$diaUltimaDieta=$arrDIAS_DIETA[0];
-
 		$dieta="D";
 
 		//determinar distancia de la dieta
 		$DISTANCIA= Dieta::dameDistancia($this->arrVuelos,$arrDIAS_DIETA[0],$BASE);
 
-		$INFO=$INFO  . $DISTANCIA . " // ";
+		//$INFO=$INFO  . $DISTANCIA . " // ";
 
 		if($DISTANCIA=="NACIONAL") $dieta=$dieta . "N";
 		if($DISTANCIA=="INTERNACIONAL") $dieta=$dieta . "I";
@@ -201,7 +204,7 @@ class Servicio{
 
 			$DIETA_LARGA_REDUCIDA=Dieta::esDietaReducida($this);
 
-			if ($DIETA_LARGA_REDUCIDA)	$INFO=$INFO . "Es Dieta Larga Reducida. " . " // ";
+			if ($DIETA_LARGA_REDUCIDA)	$INFO=$INFO . "Es Dieta Larga Reducida. ";
 
 		}
 
@@ -209,19 +212,17 @@ class Servicio{
 
 		if(!$BLOCK_OFF_ENELDIA){
 
-			$OMITIR_PERNOCTA_VUELTA=true;
-
 			$dieta=$dieta . "T";
 
-			$INFO=$INFO . "Sin BlockOff en el dia. " . Dieta::$pernoctaAplicada . " // ";
+			$INFO=$INFO . "Sin BlockOff en el dia. " ;
 
 		}else{
 
-			$PERNOCTA=Dieta::esPernocta($this,$arrDIAS_DIETA[0],$DISTANCIA);
+			$PERNOCTA=Dieta::esPernocta($this,$arrDIAS_DIETA[0],$arrMESES_DIETA[0]);
 
 			$INFO=$INFO . "Dia Calculo Pernocta: " . $arrDIAS_DIETA[0] . " // ";
 
-			$INFO=$INFO . $PERNOCTA . " // ";
+			$INFO=$INFO . $PERNOCTA . " /****/ ";
 
 			if($PERNOCTA){
 
@@ -231,14 +232,47 @@ class Servicio{
 
 				$dieta=$dieta . "C";
 
-				if($this->aptFin==$BASE) $INFO=$INFO . "No Pernocta (puede que ya se aplicara a la ida)  // ";
+				if($this->aptFin==$BASE) $INFO=$INFO . "No Pernocta (puede que ya este dada)  // ";
 
 			}
 
 		}
 
+		$miDieta=new Dieta($dieta,$this->piloto);
 
-		$this->arrDietas[0]=new Dieta($dieta,$this->piloto);
+		//si la dieta ya esta dada aborto .... O NO PQ TALVEZ CORRESPONDE UNA DIETA MAS ALTA
+		if ($arrDIAS_DIETA[0]==Servicio::$diaUltimaDieta && 
+		Servicio::$importeUltimaDieta>$miDieta->arrDatosDieta['bruto']){
+
+			//la dieta ya estaba dada y el importe era mayor, por eso no asigno otra mas baja
+			$INFO=$INFO . Servicio::$importeUltimaDieta . "//" . $miDieta->arrDatosDieta['bruto'] ;
+			$this->arrDietas[0]->misc=$INFO;
+			return;
+
+		}else{
+			if ($arrDIAS_DIETA[0]==Servicio::$diaUltimaDieta && 
+			Servicio::$importeUltimaDieta<=$miDieta->arrDatosDieta['bruto']) {
+
+				$this->eliminarSAdietaAnterior=true;
+				$this->misc=$this->misc . "ELIMINAR SERV ANTERIORRRR****";
+
+				$INFO=$INFO . "/eliminar SA anterior y dieta/";
+
+			}
+
+			$INFO=$INFO . Servicio::$importeUltimaDieta . "//" . $miDieta->arrDatosDieta['bruto'] ;
+			//la dieta no estaba dada o el importe de esta es mayor, asigno la nueva
+			Servicio::$diaUltimaDieta=$arrDIAS_DIETA[0];
+
+			$this->arrDietas[0]=$miDieta;
+			//$this->arrDietas[0]=new Dieta($dieta,$this->piloto);
+
+		} 
+
+		
+
+
+		
 
 		if($DIETA_LARGA_REDUCIDA){
 
@@ -251,10 +285,13 @@ class Servicio{
 
 		}
 
+		Servicio::$importeUltimaDieta = $this->arrDietas[0]->arrDatosDieta['bruto'];
+
 		$this->arrDietas[0]->misc=$INFO;
 
 		$this->arrDietas[0]->diaDieta=$this->fechaFirma;
 
+		$this->arrDietas[0]->misc=$INFO;
 
 
 		//**************DIETA DE LLEGADA SOLO SI SE LLEGA UN DIA DIFERENTE*************** */
@@ -271,7 +308,7 @@ class Servicio{
 
 		$INFO="";
 
-		$INFO=$INFO . "DIETAS DIA: $arrDIAS_DIETA[1] // ";
+		$INFO=$INFO . "DIETAS DIA: $arrDIAS_DIETA[1] /dieta de llegada/ ";
 
 		$PERNOCTA=false;
 
@@ -293,47 +330,21 @@ class Servicio{
 			//las segundas dietas nunca seran dietas reducidas
 			//$DIETA_LARGA_REDUCIDA=Dieta::esDietaReducida($this);
 
-			if ($DIETA_LARGA_REDUCIDA)	$INFO=$INFO . "Es Dieta Larga Reducida. " . " // ";
+			// if ($DIETA_LARGA_REDUCIDA)	$INFO=$INFO . "Es Dieta Larga Reducida. " . " // ";
 
 		}
 
-		//por lo visto esto no aplica en las segundas dietas de los servicios
-		//asi que lo asigno como si hubiera un blockoff
-		$BLOCK_OFF_ENELDIA=Dieta::hayBlockOffenElDia($this,$arrDIAS_DIETA[1]);
+		if($this->aptFin!=$BASE){
 
-		if(!$BLOCK_OFF_ENELDIA){
+			$dieta=$dieta . "P";
 
-			if($this->aptFin!=$BASE){
-
-				$dieta=$dieta . "P";
-
-				$INFO=$INFO . "Sin BlockOff en el dia, pero con Hotel. // ";
-
-			}else{
-
-				$dieta=$dieta . "T";
-
-				$INFO=$INFO . "Sin BlockOff en el dia. " . " // ";
-
-			}
+			$INFO=$INFO . "Sin BlockOff en el dia, pero con Hotel. // ";
 
 		}else{
 
-			$PERNOCTA=Dieta::esPernocta($this,$arrDIAS_DIETA[1],$DISTANCIA);
+			$dieta=$dieta . "T";
 
-			$INFO=$INFO . "Dia Calculo Pernocta: " . $arrDIAS_DIETA[1] . " // ";
-
-			$INFO=$INFO . $PERNOCTA . " // ";
-
-			if($PERNOCTA){
-
-				$dieta=$dieta . "P";
-
-			}else{
-
-				$dieta=$dieta . "C";
-
-			}
+			$INFO=$INFO . "Sin BlockOff en el dia. " . " // ";
 
 		}
 
@@ -349,14 +360,14 @@ class Servicio{
 
 		}
 
-		$this->arrDietas[1]->misc=$INFO;
+		$this->arrDietas[1]->misc=$INFO;		
 
 		$this->arrDietas[1]->diaDieta=$this->fechaDesfirma;
 
-		Servicio::$dietaPendiente=clone $this;
+		//******************linea para evitar cobrar una dieta mas baja */
+		Servicio::$importeUltimaDieta = $this->arrDietas[1]->arrDatosDieta['bruto'];
 
-		if($OMITIR_PERNOCTA_VUELTA) Dieta::$pernoctaAplicada=false;
-		$OMITIR_PERNOCTA_VUELTA=false;
+		Servicio::$dietaPendiente=clone $this;
 
 		//ahora me tengo que cargar la segunda dieta de este servicio puesto que se va
 		//a presentar en un dia diferente.
@@ -440,6 +451,7 @@ class Servicio{
 	public function calculaActividad(){
 
 		global $sonVuelos;
+		global $sonLibres;
 
 		//si el servicio es de tierra (suma actividad ordinaria)
 		if(!in_array($this->tipo,$sonVuelos)){
@@ -453,7 +465,7 @@ class Servicio{
 
 			//si el servicio no es de vuelo no calculamos actividad
 			//si el servicio es el medico sumamos cero a la actividad
-			if($this->tipo=="RM"){
+			if($this->tipo=="RM" || in_array($this->tipo,$sonLibres)){
 
 				$this->tiempoActividad=new DateInterval("PT0M");
 
@@ -468,7 +480,7 @@ class Servicio{
 			$this->fechaFirma=$this->fechaIni;
 			$this->fechaDesfirma=$this->fechaFin;
 			$this->calculaActividadNocturna();
-			$this->calculaActividadExtra();
+			$this->calculaActividadExtra2();
 
 			//guardo rn variables static del lugar y fecha donde ha
 			//salido el tripulante ACRTUALIZO VARIABLES STATIC para el calculo de timezone
@@ -520,7 +532,7 @@ class Servicio{
 		//CALCULO DE ACTIVIDAD EXTRAORDINARIA POR FDP
 		//como necesito la hora local del ultimo lugar en el que estuvo,
 		//dejo en variables static el apto y la fecha z de desfirma mas abajo
-		$this->calculaActividadExtra();
+		$this->calculaActividadExtra2();
 
 		//guardo rn variables static del lugar y fecha donde ha
 		//salido el tripulante ACRTUALIZO VARIABLES STATIC para el calculo de timezone
@@ -1144,6 +1156,8 @@ class Servicio{
 
 		$minutosActividad= ($this->tiempoActividad->h) * 60 + ($this->tiempoActividad->i);
 
+		// $this->misc=$this->misc." -MinsAct=$minutosActividad MaxFDP=$maxFDP";
+		// if($minutosActividad>$maxFDP) $this->misc=$this->misc."MisAct MAYOR que MaxFDP";
 		//ESTAMOS EN UNA ACTIVIDAD MAYOR Q LA ORDINARIA
 		if($minutosActividad>$maxFDP){
 
@@ -1158,9 +1172,11 @@ class Servicio{
 			}
 		}
 
-		//SI YA ESTAMOS POR ENCIMA DE 160H
+		//SI YA ESTAMOS POR ENCIMA DE 160H *****ESTO ESTA TODO MAL, LOS FUERA MINIMOS SE CUENTAN A APRTE
 		else if(Servicio::$totalHorasAct >= $limiteActExtra  &&
 		$actExtraordinariaYaCalculada==false){
+
+			$this->misc=$this->misc." -Entramos en fuera minimos.";
 
 			$actDecimal=Servicio::$totalHorasAct + (Servicio::$totalMinutosAct /60);
 
@@ -1191,6 +1207,71 @@ class Servicio{
 			}
 
 		}
+
+		//primero miramos si el vuelo forma parte del calculo de este mes;
+		if ($this->fechaFirma->format('n')!=$_SESSION['mesInforme'] && $_SESSION['mesInforme']!=0){
+
+			$this->fantasma=true;
+			$this->tiempoActividadEx=new DateInterval("PT".$horasActEx."H".$minsActEx."M");
+			return;
+
+		}
+
+		//augmentamos los contadores
+		Servicio::$totalMinutosActEx=Servicio::$totalMinutosActEx+$minsActEx;
+
+		Servicio::$totalHorasActEx=Servicio::$totalHorasActEx+$horasActEx;
+
+		if(Servicio::$totalMinutosActEx>=60){
+
+			$sumHorasEx=intdiv(Servicio::$totalMinutosActEx,60);
+
+			Servicio::$totalHorasActEx=Servicio::$totalHorasActEx+$sumHorasEx;
+
+			$nuevosMinutosEx=Servicio::$totalMinutosActEx % 60;
+
+			Servicio::$totalMinutosActEx=$nuevosMinutosEx;
+
+		}
+
+		$this->contadorHactEx=Servicio::$totalHorasActEx;
+		$this->contadorMactEx=Servicio::$totalMinutosActEx;
+
+		$this->tiempoActividadEx=new DateInterval("PT".$horasActEx."H".$minsActEx."M");
+
+
+	}
+	private function calculaActividadExtra2(){
+
+		/////////////////////////EVITA Q DE FALLO EN EL PRIMER SERVICIO CON VARIABLES STSTAIC EN NULL
+		if(Servicio::$fechaIniServicio==null) Servicio::$fechaIniServicio=$this->fechaIni;
+
+		$maxFDP=$this->dameMaxFdp2();
+
+		global $limiteActExtra;
+
+		$horasActEx=0;
+
+		$minsActEx=0;
+
+		$minutosActividad= ($this->tiempoActividad->h) * 60 + ($this->tiempoActividad->i);
+
+		// $this->misc=$this->misc." -MinsAct=$minutosActividad MaxFDP=$maxFDP";
+		// if($minutosActividad>$maxFDP) $this->misc=$this->misc."MisAct MAYOR que MaxFDP";
+		//ESTAMOS EN UNA ACTIVIDAD MAYOR Q LA ORDINARIA
+		if($minutosActividad>$maxFDP){
+
+			//$actExtraordinariaYaCalculada=true;
+
+			if($minutosActividad>=60){
+
+				$horasActEx=intdiv($minutosActividad,60);
+
+				$minsActEx=$minutosActividad % 60;
+
+			}
+		}
+
 
 		//primero miramos si el vuelo forma parte del calculo de este mes;
 		if ($this->fechaFirma->format('n')!=$_SESSION['mesInforme'] && $_SESSION['mesInforme']!=0){
@@ -1367,6 +1448,80 @@ class Servicio{
 
 	}
 
+	/**
+	 * funcion que devuelve el timezone para el calculo de la hora
+	 * local en el calculo de act extraordinaria asi como la definicion del periodo wocl
+	 * es llamadaa desde dame max FDP **** NUEVA VERSION
+	 * ****RESTA LAS HORAS LOCALES A LA LLEGADA PARA SABER EL Z_OFFSET
+	 */
+	public function dameDiferenciaHoraria2(){
+
+		$aptoSalida=Servicio::$aptoIniServicio;
+		$fechaSalida=Servicio::$fechaIniServicio;
+
+		//caso de que sea el primer vuelo para el calculo
+		if($aptoSalida==null) $aptoSalida=$this->piloto->aclimatadoInicial;
+		if($fechaSalida==null) $fechaSalida=$this->fechaFirma;
+
+		//ahora miro en cuantos husos estoy
+		$previousDepAp=new Aeropuerto($aptoSalida);
+
+		if($previousDepAp->arrDatosAeropuerto==false){
+
+			$previousDepAp=new Aeropuerto("MAD");
+
+			$this->misc=$this->misc . "<br>Aeropuerto $aptoSalida no encontrado. Act Extra no fiable.";
+
+		}
+
+		$z_previousDepAp=$previousDepAp->tz; /////////////////////////////
+
+		// $depAp=new Aeropuerto($this->aptIni);
+
+		// if($depAp->arrDatosAeropuerto==false){
+
+		// 	$depAp=new Aeropuerto("MAD");
+
+		// 	$this->misc=$this->misc . "<br>Aeropuerto $depAp no encontrado. Act Extra no fiable.";
+
+		// }
+
+		// $z_depAp=$depAp->tz; /////////////////////////////////////////
+
+		$arrAp=new Aeropuerto($this->aptFin);
+
+		if($arrAp->arrDatosAeropuerto==false){
+
+			$arrAp=new Aeropuerto("MAD");
+
+			$this->misc=$this->misc . "<br>Aeropuerto $arrAp no encontrado. Act Extra no fiable.";
+
+		}
+
+		$z_arrAp=$arrAp->tz; /////////////////////////////////////////
+
+		//ahora que tenemos los aeropuertos localizados vamos a calcular la hora de firma en cada apto */
+
+		//paso la hora de firma a la que corresponda en local
+		$dtPreviousFirma=clone $this->fechaFirma;
+		$dtDepFirma=clone $this->fechaFirma;
+
+
+		$dtPreviousFirma->setTimezone(new DateTimeZone($z_previousDepAp));
+		$dtDepFirma->setTimezone(new DateTimeZone($z_arrAp));
+
+		$previous_offset = $dtPreviousFirma->getOffset() / 3600;
+		$dep_offset = $dtDepFirma->getOffset() / 3600;
+
+		$diff = abs($previous_offset - $dep_offset);
+
+		$this->misc=$this->misc . "<br> diferencia horaria " . $diff;
+
+	
+	return $diff;
+
+	}
+
 	private function dameEstadoAclimatacion(){
 // (VERTICALES):Time difference (h) between reference time and local
 // time where the crew member starts the next duty
@@ -1394,7 +1549,7 @@ class Servicio{
 
 		$this->misc=$this->misc . "<br>TiempoTranscurrido: $tiempoTranscurrido->d d $tiempoTranscurrido->h h $tiempoTranscurrido->i m ";
 
-		$diferenciaHoraria=$this->dameDiferenciaHoraria();
+		$diferenciaHoraria=$this->dameDiferenciaHoraria2();
 
 		//NOS ENCONTRAMOS DENTRO DE LOS 2 HUSOS, ACLIMATADOS AL LUGAR DE REFERENCIA
 		if($diferenciaHoraria<=2)return "B";

@@ -115,6 +115,9 @@ class Vuelo {
 		if ($this->fechaIni->format('n')!=$_SESSION['mesInforme'] && $_SESSION['mesInforme']!=0){
 
 			$this->fantasma=true;
+
+			//$this->misc=$this->misc . " *fechaIni* " . $this->fechaIni->format('n') . " *mesInforme* " .$_SESSION['mesInforme'];
+
 			return;
 
 		}

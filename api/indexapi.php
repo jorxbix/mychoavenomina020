@@ -490,21 +490,23 @@ function ordenaResultados($contenedor){
 
 			if (!is_null($servicioAnterior)){
 
-					// if(($servicioAnterior->fechaIni > $servicio->fechaIni) &&
-					// ($servicioAnterior->fechaFin > $servicio->fechaFin)){
+				if($servicio->fechaFin < $servicioAnterior->fechaIni){
 
-					if($servicio->fechaFin < $servicioAnterior->fechaIni){
+					$contenedor[$i-1]=$servicio;
+					$contenedor[$i]=$servicioAnterior;
+					$operacionesRealizadas++;
+					continue;
 
-						$contenedor[$i-1]=$servicio;
-						$contenedor[$i]=$servicioAnterior;
-						$operacionesRealizadas++;
-						continue;
-
-
-					}else{
+				}else{
 
 
-					}
+				}
+
+				if($servicio->eliminarSAdietaAnterior==true){
+
+					array_splice($contenedor, $i-1, 1);
+
+				}
 
 			}
 
@@ -534,7 +536,7 @@ function dame_SA_dieta(){
 
 		$servicio_SA_dieta->arrVuelos=null;
 
-		$servicio_SA_dieta->misc="SA con Dieta";
+		$servicio_SA_dieta->misc="SA_Dieta";
 
 		return $servicio_SA_dieta;
 

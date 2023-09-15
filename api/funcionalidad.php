@@ -1,4 +1,8 @@
 <?php
+error_reporting(-1);
+ini_set('display_errors', 'On');
+
+
 require_once "classes/Conexion.class.php";
 require_once "classes/Aeropuerto.class.php";
 require_once "classes/Usuario.class.php";
@@ -20,7 +24,7 @@ session_start();
 
 $sonVuelos=["CO","PM","PR","PS","VS"];
 $sonServTierra=["SR","OC","EN","XX","SA","FR","CR"];
-$sonLibres=["LI","LN","LD","VA","LA","RT","LB","BA"];
+$sonLibres=["LI","LN","LD","VA","LA","RT","LB","BA","EX","HP"];
 
 //09h para considerar dos actividades diferrentes
 $tiempoEntreServicios=new DateInterval("PT09H");

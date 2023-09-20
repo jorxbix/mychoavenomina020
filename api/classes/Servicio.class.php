@@ -327,11 +327,6 @@ class Servicio{
 
 			$dieta=$dieta . "L";
 
-			//las segundas dietas nunca seran dietas reducidas
-			//$DIETA_LARGA_REDUCIDA=Dieta::esDietaReducida($this);
-
-			// if ($DIETA_LARGA_REDUCIDA)	$INFO=$INFO . "Es Dieta Larga Reducida. " . " // ";
-
 		}
 
 		if($this->aptFin!=$BASE){
@@ -438,11 +433,11 @@ class Servicio{
 
 		$this->arrDietas[0]->misc=$INFO;
 
-		$this->arrDietas[0]->diaDieta=$this->fechaFin;
+		$this->arrDietas[0]->diaDieta=$this->fechaIni;
 
-		Servicio::$diaUltimaDieta=$this->fechaFin->format("d");
+		Servicio::$diaUltimaDieta=$this->fechaIni->format("d");
 
-		$INFO=$INFO  . " dia esta dieta: " . $this->fechaFin->format("d") . " // ";
+		$INFO=$INFO  . " dia esta dieta: " . $this->fechaIni->format("d") . " // ";
 
 	}
 
@@ -595,6 +590,9 @@ class Servicio{
 	 * correspondientes a la actividad nocturna
 	 */
 	private function dameNocturno(){
+
+		global $sonLibres;
+		if(in_array($this->tipo, $sonLibres)) return 0;
 
 		$tmActividad=$this->tiempoActividad;
 		$dtFirma=clone $this->fechaFirma;

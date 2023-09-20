@@ -42,15 +42,19 @@ class Dieta extends Conexion{
 	 */
 	public function devuelveDatosDieta($codigo, $tipoPiloto){
 
-		$consulta="SELECT * FROM dietas WHERE codigo='$codigo';";
+		//miramos la fecha del informe para elegir tabla de dietas
+		$nombreTabla="dietas";
+
+		if($_SESSION['anoInforme']==2023 && 
+			$_SESSION['mesInforme']>=7) $nombreTabla="dietas_4percent";
 
 		if ($tipoPiloto=="PILOTO1"){
 
-			$consulta="SELECT codigo, nombre, brutop1 as bruto, exentop1 as exento FROM dietas WHERE codigo='$codigo';";
+			$consulta="SELECT codigo, nombre, brutop1 as bruto, exentop1 as exento FROM $nombreTabla WHERE codigo='$codigo';";
 
 		}else{	//tipoPiloto es PILOTO2
 
-			$consulta="SELECT codigo, nombre, brutop2 as bruto, exentop2 as exento FROM dietas WHERE codigo='$codigo';";
+			$consulta="SELECT codigo, nombre, brutop2 as bruto, exentop2 as exento FROM $nombreTabla WHERE codigo='$codigo';";
 
 		}
 

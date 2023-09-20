@@ -40,7 +40,7 @@ class NivelSalarial extends Conexion{
 
 		if($tablas==false){
 
-			$consulta="SELECT * FROM niveles_2023 WHERE nivel='$codigo';";
+			$consulta="SELECT * FROM niveles_2023_4percent WHERE nivel='$codigo';";
 
 		}else{
 

@@ -538,6 +538,42 @@ function dame_SA_dieta(){
 
 		$servicio_SA_dieta->misc="SA_Dieta";
 
+		//ahora miramos que no corresponda a un dia que no es el mes del informe:
+		
+			global $mesInforme;
+
+			//obtener la bse del pilto
+			$BASE=$servicio_SA_dieta->piloto->base;
+	
+			$time_zone="Europe/Madrid";
+	
+			$laBase=new Aeropuerto($BASE);
+	
+			//si han metido un aeropuerto que no existe, le asignamos MAD
+			if($laBase) $time_zone=$laBase->tz;
+
+			$horaLLegada=clone $servicio_SA_dieta->fechaDesfirma;	
+	
+			$horaLLegada->setTimezone(new DateTimeZone($time_zone));
+	
+			$hora_LLegada=(int) $horaLLegada->format("H");
+			$dia_LLegada=(int) $horaLLegada->format("d");
+			$mes_LLegada= (int) $horaLLegada->format("m");
+
+			if($mes_LLegada!=$mesInforme){
+
+				$servicio_SA_dieta->fantasma=true;
+
+				$servicio_SA_dieta->arrDietas[0]->diaDieta=$horaLLegada;
+
+				$servicio_SA_dieta->misc=$servicio_SA_dieta->misc . " DIETA MES SIG ";
+
+
+			} 
+
+
+		////////////////////////////////////////////////////////////////////////////
+
 		return $servicio_SA_dieta;
 
 	}
@@ -591,7 +627,11 @@ function memorizaHoras($datos){
 
 	global $mesInforme;
 
+	global $anoInforme;
+
 	$arrMeses=[];
+
+	$arrAnos=[];
 
 	$contenedor=[];
 
@@ -603,6 +643,8 @@ function memorizaHoras($datos){
 		//se van a sacar los totales
 		$arrFecha=explode("/", $servicio->fechaIni);
 		array_push($arrMeses,$arrFecha[1]);
+		//echo substr($arrFecha[2],0,4) . " ";
+		array_push($arrAnos,substr($arrFecha[2],0,4));
 
 		//1.ES UN SERVICIO DE VUELO
 		if(in_array($servicio->tipo,$sonVuelos)){
@@ -624,6 +666,12 @@ function memorizaHoras($datos){
 	arsort($values);
 	$popular = array_slice(array_keys($values), 0, 5, true);
 	$_SESSION['mesInforme']=$popular[0];
+
+	//BUSCO EL ANO MAS COMUN PARA DETERMINAR EL ANO DEL INFORME
+	$values = array_count_values($arrAnos);
+	arsort($values);
+	$popular = array_slice(array_keys($values), 0, 5, true);
+	$_SESSION['anoInforme']=$popular[0];
 
 	//guardamos los vuelos programados en una variable session para poder acceder a
 	//ellos en cualquine momento de la sesion del ususario. Se sobreescribiran cada

@@ -117,9 +117,9 @@ function checkSession(){
 
     <label for="tablas">Tablas</label>
     <select name="tablas" id="tablas">
-    <!-- <option value="2023">2023</option> -->
-    <option selected="selected" value="2023">2023</option>
-    <option value="2022">2022</option>
+    <option selected="selected" value="2023_4percent">A partir Agosto(inc) 2023</option>
+    <option value="2023">A partir Abril(inc) 2023</option>
+    <option value="2022">2022 hasta Abril 2023</option>
     <option value="anteriores">anteriores</option>
     </select>
 

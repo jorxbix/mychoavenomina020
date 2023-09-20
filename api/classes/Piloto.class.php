@@ -37,15 +37,21 @@ class Piloto{
 
 		if($piloto->tablas_sentencia==true) $this->sentenciaPerfiles=true;
 
-		if($piloto->tablas){
+		//miramos la fecha del informe para elegir tabla de niveles salariales
+		$nombreTabla="anteriores";
+		$mesInforme=$_SESSION['mesInforme'];
+		$anoInforme=$_SESSION['anoInforme'];
 
-			$miNivelSalarial=new NivelSalarial($nivel,$piloto->tablas);
+		if($anoInforme==2022) $nombreTabla="2022"; 
+		if ($anoInforme==2023 && $mesInforme<=4)  $nombreTabla="2022";
 
-		}else{
+		if($anoInforme==2023 &&
+			($mesInforme>4 && $mesInforme<7))  $nombreTabla="2023";
 
-			$miNivelSalarial=new NivelSalarial($nivel,'2023');
+		if($anoInforme=2023 && $mesInforme>=7)  $nombreTabla="2023_4percent";
+		if($anoInforme>=2024)  $nombreTabla="2023_4percent";
 
-		}
+		$miNivelSalarial=new NivelSalarial($nivel,$nombreTabla);
 
 		$this->nivel=$miNivelSalarial->arrDatosNivel;
 
